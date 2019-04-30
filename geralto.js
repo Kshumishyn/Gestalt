@@ -237,4 +237,4 @@ function helpCommand() {
 }
 
 // Authentication token
-client.login("NTAyNzMyNTcxOTczNzc5NDY2.Dq8Obw.fjQDWGuvW67WPVzJzQsehe9jd-Y");
+client.login("NTAyNzMyNTcxOTczNzc5NDY2.XMgX7w.26_zpdK4DRQRZyGifntZfimsu18");
