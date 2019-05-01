@@ -2,23 +2,40 @@ const Discord = require("discord.js");
 const lineReader = require('line-reader');
 const fs = require('fs');
 const client = new Discord.Client();
-//const translate = require('translate');
+const translate = require('translate');
+const async = require('async');
 
 // Sets Geralto version
-var version = "6";
+let version = "9";
 
 // Set the prefix
-var prefix = "!";
+let prefix = "!";
 
-// Builds Map
-var commandList = new Map();
+// Builds Maps
+let commandList = new Map();
+let countryList = [
+	"az", "sq", "am", "en", "ar", "hy", "af", "eu", "ba",
+	"be", "bn", "my", "bg", "bs", "cy", "hu", "vl", "ht",
+	"gl", "nl", "mrj", "el", "ka", "gu", "da", "he", "yi",
+	"id", "ga", "it", "is", "es", "kk", "kn", "ca", "ky",
+	"zh", "ko", "xh", "km", "lo", "la", "lv", "lt", "lb",
+	"mg", "ms", "ml", "mt", "mk", "mi", "mr", "mhr", "mn",
+	"de", "ne", "no", "pa", "pap", "fa", "pl", "pt", "ro",
+	"ru", "ceb", "sr", "si", "sk", "sl", "sw", "su", "tg",
+	"th", "ti", "ta", "tt", "te", "tr", "udm", "uz", "uk",
+	"ur", "fi", "fr", "hi", "hr", "cs", "sv", "gd", "et", 
+	"eo", "jv", "ja"
+];
 
 // String of List
-var comList = "Dynamic Commands:```";
+let comList = "Dynamic Commands:```";
 
 // Max
 const MAX_COMM = 15;
 const MAX_TRIM = 100;
+
+// Fetches the authorization code
+let authCode = fs.readFileSync('auth.code', 'utf8').trim();
 
 // Bot starts
 client.on("ready", client => {
@@ -34,7 +51,7 @@ client.on("ready", client => {
 	
 		// Builds String of List
 		let offset = "";
-		for (var i = cmd.length; i < MAX_COMM; i++)
+		for (let i = cmd.length; i < MAX_COMM; i++)
 			offset += " ";
 
 		// Trims the display mappings
@@ -54,187 +71,202 @@ client.on("ready", client => {
 });
 
 // Bot detects message
-client.on("message", (message) => {
+client.on("message", async (message) => {
     // Exit and stop if the prefix is not there or if user is a bot
     if (!(message.content.startsWith(prefix)) || message.author.bot)
 		return;
 
-	// If message starts with a prefix
-    if (message.content.startsWith(prefix)) {
-		let command = (message.content).substr(1);
+	let command = (message.content).substr(1);
+	let mesUser = message.member.user.username.toString();
+
+	// Handles simple "!" call
+	if (command.length == 0)
+		message.channel.send("Write something after the ! stoopid!");
+
+	// Handles a request to log off bot
+    else if (command.startsWith("begone"))
+        begoneCommand();
+
+    // Handles help command
+    else if (command.startsWith("help"))
+        message.channel.send(helpCommand());
+
+	// Handles comList commands
+	else if (command.startsWith("comList"))
+		message.channel.send(comListCommand(command));
+
+	// Handles translate command
+	else if (command.startsWith("translate"))
+		message.channel.send(await translateCommand(command));
+
+	// Handles dice roll
+	else if (command.startsWith("rolld") && !(isNaN(command.substr(5))))
+		message.channel.send(diceCommand(command, mesUser));
+
+	// Checks if dynamic command exists
+	else if (commandList.has(command))
+		message.channel.send(commandList.get(command));
+
+	// Handles no matching commands
+	else
+		message.channel.send("Unknown command!");
 	
-		let mesUser = message.member.user.username.toString();
-	
-		// Handles simple "!" call
-		if (command.length == 0) {
-			message.channel.send("Write something after the ! stoopid!");
-			return;
-		}
-		
-		// Handles adding new commands dynamically
-		if (command.startsWith("#")) {
-			// Stores command into current list
-			command = command.substr(1);
-			let temp = command.substring(0,command.indexOf(' '));
-			command = command.substring(command.indexOf(' ')+1);
-	
-			// Existing command
-			if (commandList.has(temp)) {
-				message.channel.send("Already exists, try removing first");
-				return;
-			}
-			// Empty command
-			if (temp.length == 0 || command.length == 0) {
-				message.channel.send("Empty Command addition");
-				return;
-			}
+	// After any command is entered, delete it
+	message.delete();
 
-			// Successfully Maps command
-			commandList.set(temp, command);
-
-			// Updates comList
-            let offset = "";
-            for (var i = temp.length; i < MAX_COMM; i++)
-                offset += " ";
-
-			// Trims the display mappings
-            let trimmed = command;
-            if (trimmed.length > MAX_TRIM) {
-                trimmed = trimmed.substring(0, MAX_TRIM) + "...";
-            }
-
-			// Appends to end of comList
-			comList = comList.substring(0, comList.length - 3);
-            comList += "\t!" + temp + offset + "=> " + trimmed + "\n```";
-			
-			// Feedback
-			message.channel.send("Mapped \"" + temp + "\" to \"" + trimmed + "\".");
-
-			// Reuse to append to file
-			temp = temp + " " + command;
-			
-			// Appends command to file for future use
-			let stream = fs.createWriteStream("commands.grlt", {flags:'a'});
-			stream.write(temp + "\n");
-			stream.end();
-		}
-
-        // Handles removing commands from dynamic command list
-		else if (command.startsWith("$")) {
-			command = command.substr(1);
-
-			// If command does not exist in the map, it's time to stop
-			if (!commandList.has(command)) {
-				message.channel.send("Command does not exist");
-				return;
-			}
-
-			// Stores for two uses
-			let tempa = commandList.get(command);
-			let tempb = commandList.get(command);
-			tempa = command + " " + tempa + "\n";
-
-			// Feedback
-            message.channel.send("Removed \"!" + command + "\" from mapping.");
-
-			// Deletes instances of corresponding command
-			commandList.delete(command);
-
-			// Updates comList
-			let offset = "";
-			for (var i = command.length; i < MAX_COMM; i++)
-				offset += " ";
-
-			// Trims the display mapping
-            if (tempb.length > MAX_TRIM) {
-                tempb = tempb.substring(0, MAX_TRIM) + "...";
-            }
-
-			// Erases from comList
-			tempb = "\t!" + command + offset + "=> " + tempb + "\n";
-			comList = comList.replace(tempb, "");
-
-            // Replaces removed Dynamic Messages in configuration file
-			fs.readFile("commands.grlt", 'utf8', function (err,data) {
-				if (err)
-					return console.log(err);
-				
-				var result = data.replace(tempa, "");
-
-				fs.writeFile("commands.grlt", result, 'utf8', function (err) {
-					if (err) return console.log(err);
-				});
-			});
-
-		}
-
-        // Handles a request to log off bot
-        else if (command.startsWith("begone")) {
-			process.exit();
-		}
-
-        // Handles help command
-		else if (command.startsWith("help")) {
-			message.channel.send(helpCommand());
-		}
-
-        // Handles printing list of current artificial commands
-		else if (command.startsWith("comlist"))
-			message.channel.send(comList);
-
-		// Checks if dynamic command exists
-		else if (commandList.has(command))
-			message.channel.send(commandList.get(command));
-
-		// Assumes
-		else if (command.startsWith("d") && !(isNaN(command.substr(1)))) {
-			command = command.substr(1);
-			let num = parseInt(command,10);
-			let rand = Math.round(Math.random()*(num-1))+1;
-			let mes = "";
-			if (rand == num)
-				//mes = "*" + mesUser + " rolled a " + num + " sided die and got **a natural " + num + "!***";
-				mes = "Winnar is " + mesUser + ".";
-			//else if (rand == 1)
-			//	mes = "*" + mesUser + " rolled a " + num + " sided die and got a 1, **critical fail!***";
-			else
-				mes = "*" + mesUser + " rolled a " + num +  " sided die:*   〚⊱" + rand + "⊰〛";
-
-			message.channel.send(mes);
-		}
-
-		/*else if (command.startsWith("&")) {
-			let mes = command.substr(1);
-			let str = "";
-
-			for (var i = 0; i < mes.length; i++) {
-				let temp = parseInt(mes.charCodeAt(i));
-				str = str + " " + temp;
-			}
-			message.channel.send(str);
-		}*/
-
-		// Handles no matching commands
-		else
-			message.channel.send("Unknown command!");
-		
-		// After any command is entered, delete it
-		message.delete();
-    }
 });
 
-function helpCommand() {
-	var helpStr	 = "Here is a list of all logistic commands:```";
-	helpStr		+= "	!help    : You're currently using this command\n";
-	helpStr		+= "	!begone  : Logs this bot off (warning, must restart locally)\n";
-	helpStr		+= "	!comlist : Lists out the dynamic commands from configuration\n";
-	helpStr		+= "	!#x y    : Sets dynamic command x to make bot say y\n";
-	helpStr		+= "	!$x      : Removes dynamic command x from configuration\n";
-	helpStr		+= "	!dx      : Rolls a dice with values from 1->x\n";
-
+// Form !help
+function helpCommand(display) {
+	let helpStr	 = "Here is a list of all logistic commands:```";
+	helpStr		+= "	!help			: You're currently using this command\n";
+	helpStr		+= "	!begone			: Logs this bot off (warning, must restart locally)\n";
+	helpStr		+= "	!comList View	: Lists out the dynamic commands from configuration\n";
+	helpStr		+= "	!comList Add	: Sets dynamic command x to make bot say y\n";
+	helpStr		+= "	!comList Remove	: Removes dynamic command x from configuration\n";
+	helpStr		+= "	!rolldx			: Rolls a dice with values from 1->x\n";
 	helpStr		+= "```";
+
 	return helpStr;
 }
 
+// Form "!rolld[integer]
+function diceCommand(command, user) {
+	let message = user + " just tried to roll a less than 2 sided die!";
+	let number = parseInt(command.substr(5), 10);
+	
+	// Exits prematurely if invalid roll
+	if (number < 2)
+		return message;
+
+	let roll = Math.round(Math.random()*(number - 1)) + 1;
+
+	if (roll === number)
+		message = "*" + user + " rolled a " + number + " sided die and got **a natural " + number + "!***";
+	else
+		message = "*" + user + " rolled a " + number +  " sided die:*   〚⊱" + roll + "⊰〛";
+	
+	return message;
+}
+
+// Form !comList [option] [string] [?string]
+function comListCommand(command) {
+	let message = "";
+	let option = command.substr(8);
+
+	if (option.toLowerCase().startsWith("view"))
+		return comList;
+	else if (option.toLowerCase().startsWith("add"))
+		message = comListAdd(option.substr(4));
+	else if (option.toLowerCase().startsWith("remove"))
+		message = comListRemove(option.substr(7));
+	else
+		message = "Unknown comList command";
+
+	return message;
+}
+
+// Form [string] [string]
+function comListAdd(keyAndValue) {
+	let key = keyAndValue.substring(0, keyAndValue.indexOf(' '));
+	let value = keyAndValue.substring( keyAndValue.indexOf(' ') + 1);
+
+	if (commandList.has(key))
+		return "Command already exists, try removing existing command first.";
+	
+	if (keyAndValue.length == 0 || key.length == 0 || value.length == 0)
+		return "Invalid command mapping length";
+
+	commandList.set(key, value);
+
+	let offset = "";
+    for (let i = key.length; i < MAX_COMM; i++)
+        offset += " ";
+
+	let trimValue = value;
+	if (trimValue.length > MAX_TRIM)
+		trimValue = trimValue.substring(0, MAX_TRIM) + "...";
+
+	comList = comList.substring(0, comList.length - 3);
+    comList += "\t!" + key + offset + "=> " + trimValue + "\n```";
+
+	// Appends command to file for future use
+	let stream = fs.createWriteStream("commands.grlt", {flags:'a'});
+    stream.write(keyAndValue + "\n");
+    stream.end();
+
+	// Gives Mapping Feedback
+	// TODO: Make conditional
+	return "Mapped \"" + key + "\" to \"" + value + "\"."
+}
+
+// Form [string]
+function comListRemove(key) {
+	if (!commandList.has(key))
+		return "Command does not exist.";
+
+	let value = commandList.get(key);
+	let command = key + " " + value + "\n";
+	let trimValue = value;
+
+	commandList.delete(key);
+
+	let offset = "";
+    for (let i = key.length; i < MAX_COMM; i++)
+		offset += " ";
+
+    if (trimValue.length > MAX_TRIM)
+        trimValue = trimValue.substring(0, MAX_TRIM) + "...";
+
+	// Erases from comList
+    trimValue = "\t!" + key + offset + "=> " + trimValue + "\n";
+    comList = comList.replace(trimValue, "");
+
+	// Replaces removed Dynamic Messages in configuration file
+    fs.readFile("commands.grlt", 'utf8', function (err,data) {
+        if (err)
+            return console.log(err);
+
+        let result = data.replace(command, "");
+
+        fs.writeFile("commands.grlt", result, 'utf8', function (err) {
+            if (err) return console.log(err);
+		});
+    });
+
+	// Gives Removal Feedback
+	// TODO: Make conditional
+	return "Removed \"!" + key + "\" from mapping.";
+}
+
+// Form !translate [option] [code] [string]
+function translateCommand(command) {
+    let str = command.substr(10);
+	let option = str.substring(0, str.indexOf(' '));
+	str = str.substring(option.length).trim();
+
+	let code = str.substring(0, str.indexOf(' '));
+	let text = str.substring(str.indexOf(' ') + 1);
+
+    // TODO: Add language parameter, check language parameter against valid list of languages and give error feedback
+    if (!countryList.includes(code))
+		return "Country Code does not exist.";
+	
+	if (option.startsWith("to"))
+		return translate(text, { to: code, engine: 'yandex', key: 'trnsl.1.1.20190430T110109Z.bfba60f3252d280d.8a689a011b1af2724d9228e94bca54f691f0120c' });
+
+
+	else if (option.startsWith("from"))
+		return translate(text, { from: code, engine: 'yandex', key: 'trnsl.1.1.20190430T110109Z.bfba60f3252d280d.8a689a011b1af2724d9228e94bca54f691f0120c' });
+
+	else
+		return "Option \"to\" or \"from\" is malformed.";
+}
+
+// Form !begone
+function begoneCommand() {
+	process.exit();
+}
+
 // Authentication token
-client.login("NTAyNzMyNTcxOTczNzc5NDY2.XMgX7w.26_zpdK4DRQRZyGifntZfimsu18");
+client.login(authCode);
