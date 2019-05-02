@@ -37,6 +37,9 @@ const MAX_TRIM = 100;
 // Fetches the authorization code
 let authCode = fs.readFileSync('auth.code', 'utf8').trim();
 
+// Fetches the yandex api key
+let yandCode = fs.readFileSync('yand.code', 'utf8').trim();
+
 // Bot starts
 client.on("ready", client => {
 	console.log("Geralto V" + version + "!");
@@ -92,16 +95,28 @@ client.on("message", async (message) => {
         message.channel.send(helpCommand());
 
 	// Handles comList commands
-	else if (command.startsWith("comList"))
+	else if (command.startsWith("comlist"))
 		message.channel.send(comListCommand(command));
 
 	// Handles translate command
 	else if (command.startsWith("translate"))
 		message.channel.send(await translateCommand(command));
 
+	// Translate To shortcut
+	else if (command.startsWith("ttj"))
+		message.channel.send(await quickTranslateTo(command));
+
+	// Translate From shortcut
+	else if (command.startsWith("tfj"))
+		message.channel.send(await quickTranslateFrom(command));
+
 	// Handles dice roll
 	else if (command.startsWith("rolld") && !(isNaN(command.substr(5))))
 		message.channel.send(diceCommand(command, mesUser));
+
+	// Dice Roll shortcut
+	else if (command.startsWith("d") && !(isNaN(command.substr(1))))
+		message.channel.send(quickDiceRoll(command, mesUser));
 
 	// Checks if dynamic command exists
 	else if (commandList.has(command))
@@ -119,18 +134,20 @@ client.on("message", async (message) => {
 // Form !help
 function helpCommand(display) {
 	let helpStr	 = "Here is a list of all logistic commands:```";
-	helpStr		+= "	!help			: You're currently using this command\n";
-	helpStr		+= "	!begone			: Logs this bot off (warning, must restart locally)\n";
-	helpStr		+= "	!comList View	: Lists out the dynamic commands from configuration\n";
-	helpStr		+= "	!comList Add	: Sets dynamic command x to make bot say y\n";
-	helpStr		+= "	!comList Remove	: Removes dynamic command x from configuration\n";
-	helpStr		+= "	!rolldx			: Rolls a dice with values from 1->x\n";
+	helpStr		+= "    !help           : You're currently using this command\n";
+	helpStr		+= "    !begone         : Logs this bot off (warning, must restart locally)\n";
+	helpStr		+= "    !comlist view   : Lists out the dynamic commands from configuration\n";
+	helpStr		+= "    !comlist add    : Sets dynamic command x to make bot say y\n";
+	helpStr		+= "    !comlist remove : Removes dynamic command x from configuration\n";
+	helpStr		+= "    !translate to   : Translates to a specified language\n";
+	helpStr		+= "    !translate from : Translates from a specified language\n";
+	helpStr		+= "    !rolldx         : Rolls a dice with values from 2->x\n";
 	helpStr		+= "```";
 
 	return helpStr;
 }
 
-// Form "!rolld[integer]
+// Form !rolld[integer]
 function diceCommand(command, user) {
 	let message = user + " just tried to roll a less than 2 sided die!";
 	let number = parseInt(command.substr(5), 10);
@@ -149,6 +166,27 @@ function diceCommand(command, user) {
 	return message;
 }
 
+// Form shortcut rolld
+// Form !d[integer]
+function quickDiceRoll(command, user) {
+	let message = user + " just tried to roll a less than 2 sided die!";
+	let number = parseInt(command.substr(1), 10);
+
+	// Exits prematurely if invalid roll
+	if (number < 2)
+		        return message;
+
+    let roll = Math.round(Math.random()*(number - 1)) + 1;
+
+    if (roll === number)
+	        message = "*" + user + " rolled a " + number + " sided die and got **a natural " + number + "!***";
+    else
+	        message = "*" + user + " rolled a " + number +  " sided die:*   〚⊱" + roll + "⊰〛";
+
+	return message;
+}
+
+
 // Form !comList [option] [string] [?string]
 function comListCommand(command) {
 	let message = "";
@@ -161,7 +199,7 @@ function comListCommand(command) {
 	else if (option.toLowerCase().startsWith("remove"))
 		message = comListRemove(option.substr(7));
 	else
-		message = "Unknown comList command";
+		message = "Unknown comlist command";
 
 	return message;
 }
@@ -186,7 +224,7 @@ function comListAdd(keyAndValue) {
 	let trimValue = value;
 	if (trimValue.length > MAX_TRIM)
 		trimValue = trimValue.substring(0, MAX_TRIM) + "...";
-
+	
 	comList = comList.substring(0, comList.length - 3);
     comList += "\t!" + key + offset + "=> " + trimValue + "\n```";
 
@@ -204,7 +242,7 @@ function comListAdd(keyAndValue) {
 function comListRemove(key) {
 	if (!commandList.has(key))
 		return "Command does not exist.";
-
+	
 	let value = commandList.get(key);
 	let command = key + " " + value + "\n";
 	let trimValue = value;
@@ -253,14 +291,30 @@ function translateCommand(command) {
 		return "Country Code does not exist.";
 	
 	if (option.startsWith("to"))
-		return translate(text, { to: code, engine: 'yandex', key: 'trnsl.1.1.20190430T110109Z.bfba60f3252d280d.8a689a011b1af2724d9228e94bca54f691f0120c' });
+		return translate(text, { to: code, engine: 'yandex', key: yandCode });
 
 
 	else if (option.startsWith("from"))
-		return translate(text, { from: code, engine: 'yandex', key: 'trnsl.1.1.20190430T110109Z.bfba60f3252d280d.8a689a011b1af2724d9228e94bca54f691f0120c' });
+		return translate(text, { from: code, engine: 'yandex', key: yandCode });
 
 	else
 		return "Option \"to\" or \"from\" is malformed.";
+}
+
+// Shortcut translate to
+// Form !ttj [string]
+function quickTranslateTo(command) {
+	let text = command.substring(command.indexOf(' ') + 1);
+
+	return translate(text, { to: 'ja', engine: 'yandex', key: yandCode });
+}
+
+// Shortcut translate from
+// Form !tfj [string]
+function quickTranslateFrom(command) {
+	let text = command.substring(command.indexOf(' ') + 1);
+
+	return translate(text, { from: 'ja', engine: 'yandex', key: yandCode });
 }
 
 // Form !begone
