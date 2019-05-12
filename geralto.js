@@ -116,7 +116,7 @@ client.on("message", async (message) => {
 
 	// Dice Roll shortcut
 	else if (command.startsWith("d") && !(isNaN(command.substr(1))))
-		message.channel.send(quickDiceRoll(command, mesUser));
+		message.channel.send(diceCommand("aaaa" + command, mesUser));
 
 	// Checks if dynamic command exists
 	else if (commandList.has(command))
@@ -165,27 +165,6 @@ function diceCommand(command, user) {
 	
 	return message;
 }
-
-// Form shortcut rolld
-// Form !d[integer]
-function quickDiceRoll(command, user) {
-	let message = user + " just tried to roll a less than 2 sided die!";
-	let number = parseInt(command.substr(1), 10);
-
-	// Exits prematurely if invalid roll
-	if (number < 2)
-		        return message;
-
-    let roll = Math.round(Math.random()*(number - 1)) + 1;
-
-    if (roll === number)
-	        message = "*" + user + " rolled a " + number + " sided die and got **a natural " + number + "!***";
-    else
-	        message = "*" + user + " rolled a " + number +  " sided die:*   〚⊱" + roll + "⊰〛";
-
-	return message;
-}
-
 
 // Form !comList [option] [string] [?string]
 function comListCommand(command) {
