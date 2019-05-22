@@ -6,7 +6,7 @@ const translate = require('translate');
 const async = require('async');
 
 // Sets Geralto version
-let version = "9";
+let version = "10";
 
 // Set the prefix
 let prefix = "!";
@@ -42,7 +42,7 @@ let yandCode = fs.readFileSync('yand.code', 'utf8').trim();
 
 // Bot starts
 client.on("ready", client => {
-	console.log("Geralto V" + version + "!");
+	console.log("Geralto V" + version + "! Now with 10x more DAKKA!");
 
 	// Reads in command file, line by line
 	lineReader.eachLine("commands.grlt", function(line, last) {
@@ -81,10 +81,11 @@ client.on("message", async (message) => {
 
 	let command = (message.content).substr(1);
 	let mesUser = message.member.user.username.toString();
+	let mesDate = (new Date()).toLocaleString();
 
 	// Handles simple "!" call
 	if (command.length == 0)
-		message.channel.send("Write something after the ! stoopid!");
+		message.channel.send("Write something after the ! stoopid!").catch(error => logError(error));
 
 	// Handles a request to log off bot
     else if (command.startsWith("begone"))
@@ -92,44 +93,60 @@ client.on("message", async (message) => {
 
     // Handles help command
     else if (command.startsWith("help"))
-        message.channel.send(helpCommand());
+        message.channel.send(helpCommand()).catch(error => logError(error));
 
 	// Handles comList commands
 	else if (command.startsWith("comlist"))
-		message.channel.send(comListCommand(command));
+		message.channel.send(comListCommand(command)).catch(error => logError(error));
 
 	// Handles translate command
 	else if (command.startsWith("translate"))
-		message.channel.send(await translateCommand(command));
+		message.channel.send(await translateCommand(command)).catch(error => logError(error));
 
 	// Translate To shortcut
 	else if (command.startsWith("ttj"))
-		message.channel.send(await quickTranslateTo(command));
+		message.channel.send(await quickTranslateTo(command)).catch(error => logError(error));
 
 	// Translate From shortcut
 	else if (command.startsWith("tfj"))
-		message.channel.send(await quickTranslateFrom(command));
+		message.channel.send(await quickTranslateFrom(command)).catch(error => logError(error));
 
 	// Handles dice roll
 	else if (command.startsWith("rolld") && !(isNaN(command.substr(5))))
-		message.channel.send(diceCommand(command, mesUser));
+		message.channel.send(diceCommand(command, mesUser)).catch(error => logError(error));
 
 	// Dice Roll shortcut
 	else if (command.startsWith("d") && !(isNaN(command.substr(1))))
-		message.channel.send(diceCommand("aaaa" + command, mesUser));
+		message.channel.send(diceCommand("aaaa" + command, mesUser)).catch(error => logError(error));
 
 	// Checks if dynamic command exists
 	else if (commandList.has(command))
-		message.channel.send(commandList.get(command));
+		message.channel.send(commandList.get(command)).catch(error => logError(error));
 
 	// Handles no matching commands
 	else
-		message.channel.send("Unknown command!");
-	
+		message.channel.send("Unknown command!").catch(error => logError(error));
+
+	// Appends command to file for future use
+	let stream = fs.createWriteStream("messages.log", {flags:'a'});
+	stream.write(mesDate + " - " + mesUser + ": " + command  + "\n");
+	stream.end();
+
 	// After any command is entered, delete it
 	message.delete();
 
 });
+
+client.on('error', err => {logError(error);});
+
+// Log Error
+function logError(error) {
+	let date = (new Date()).toLocaleString();
+	let stream = fs.createWriteStream("error.log", {flags:'a'});
+    stream.write("\n" + date + "\n" + error + "\n");
+	stream.end();
+
+}
 
 // Form !help
 function helpCommand(display) {
