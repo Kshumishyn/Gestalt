@@ -6,7 +6,7 @@ const translate = require('translate');
 const async = require('async');
 
 // Sets Geralto version
-let version = "10";
+let version = "11";
 
 // Set the prefix
 let prefix = "!";
@@ -42,7 +42,7 @@ let yandCode = fs.readFileSync('yand.code', 'utf8').trim();
 
 // Bot starts
 client.on("ready", client => {
-	console.log("Geralto V" + version + "! Now with 10x more DAKKA!");
+	console.log("Geralto V" + version + "! Now with " + version + "x more DAKKA!");
 
 	// Reads in command file, line by line
 	lineReader.eachLine("commands.grlt", function(line, last) {
@@ -112,12 +112,20 @@ client.on("message", async (message) => {
 		message.channel.send(await quickTranslateFrom(command)).catch(error => logError(error));
 
 	// Handles dice roll
-	else if (command.startsWith("rolld") && !(isNaN(command.substr(5))))
+	else if (command.startsWith("rolld") && !(isNaN(command.substr(5))) && (command.indexOf(' ') == -1))
 		message.channel.send(diceCommand(command, mesUser)).catch(error => logError(error));
 
 	// Dice Roll shortcut
-	else if (command.startsWith("d") && !(isNaN(command.substr(1))))
-		message.channel.send(diceCommand("aaaa" + command, mesUser)).catch(error => logError(error));
+	else if (command.startsWith("d") && !(isNaN(command.substr(1))) && (command.indexOf(' ') == -1))
+		message.channel.send(diceCommand("roll" + command, mesUser)).catch(error => logError(error));
+
+	// Multi Dice Roll
+	else if (command.startsWith("rolld") && (command.indexOf(' ') >= 0))
+		message.channel.send(diceMultiCommand(command.substring(0, command.indexOf(' ')), mesUser, command.substring(command.indexOf(' ')))).catch(error => logError(error));
+
+	// Multi Dice Roll shortcut
+     else if (command.startsWith("d") && (command.indexOf(' ') >= 0))
+        message.channel.send(diceMultiCommand("roll" + command.substring(0, command.indexOf(' ')), mesUser, command.substring(command.indexOf(' ')))).catch(error => logError(error));
 
 	// Checks if dynamic command exists
 	else if (commandList.has(command))
@@ -145,7 +153,6 @@ function logError(error) {
 	let stream = fs.createWriteStream("error.log", {flags:'a'});
     stream.write("\n" + date + "\n" + error + "\n");
 	stream.end();
-
 }
 
 // Form !help
@@ -156,9 +163,16 @@ function helpCommand(display) {
 	helpStr		+= "    !comlist view   : Lists out the dynamic commands from configuration\n";
 	helpStr		+= "    !comlist add    : Sets dynamic command x to make bot say y\n";
 	helpStr		+= "    !comlist remove : Removes dynamic command x from configuration\n";
-	helpStr		+= "    !translate to   : Translates to a specified language\n";
-	helpStr		+= "    !translate from : Translates from a specified language\n";
+	helpStr		+= "    !translate to   : Translates from English to a specified language\n";
+	helpStr		+= "    !translate from : Translates to English from a specified language\n";
+	helpStr		+= "    !ttj            : Translates English to Japanese\n";
+	helpStr		+= "    !tfj            : Translates to English from Japanese\n";
 	helpStr		+= "    !rolldx         : Rolls a dice with values from 2->x\n";
+	helpStr		+= "    !dx             : Shortcut to roll dice from 2->x\n";
+	helpStr		+= "    !rolldx y       : Rolls y dx's\n";
+	helpStr		+= "    !dx y           : Rolls y dx's\n";
+	
+	helpStr		+= "    * Ask Kosba if you need another question answered, help commands are a PITA\n";
 	helpStr		+= "```";
 
 	return helpStr;
@@ -180,6 +194,22 @@ function diceCommand(command, user) {
 	else
 		message = "*" + user + " rolled a " + number +  " sided die:*   〚⊱" + roll + "⊰〛";
 	
+	return message;
+}
+
+// Form !rolld[integer] [integer]
+function diceMultiCommand(command, user, num) {
+	let message = user + ", Multi-dice Roll failed!";
+
+	if (isNaN(num))
+		return message;
+
+	let number = parseInt(num, 10);
+	message = user + " rolled " + number + " dice and got the following:\n\n";
+
+	for (let i = 0; i < number; i++)
+		message = message + diceCommand(command, user) + "\n";
+
 	return message;
 }
 
