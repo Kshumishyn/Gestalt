@@ -4,9 +4,9 @@ const fs = require('fs');
 const client = new Discord.Client();
 const translate = require('translate');
 const async = require('async');
-
+const util = require('util');
 // Sets Geralto version
-let version = "11";
+let version = "13";
 
 // Set the prefix
 let prefix = "!";
@@ -145,7 +145,7 @@ client.on("message", async (message) => {
 
 });
 
-client.on('error', err => {logError(error);});
+client.on('error', err => {logError(util.inspect(err));});
 
 // Log Error
 function logError(error) {
