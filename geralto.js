@@ -5,8 +5,9 @@ const client = new Discord.Client();
 const translate = require('translate');
 const async = require('async');
 const util = require('util');
+
 // Sets Geralto version
-let version = "13";
+let version = "14";
 
 // Set the prefix
 let prefix = "!";
@@ -81,6 +82,7 @@ client.on("message", async (message) => {
 
 	let command = (message.content).substr(1);
 	let mesUser = message.member.user.username.toString();
+	let mesUsr2 = message.member.user.id;
 	let mesDate = (new Date()).toLocaleString();
 
 	// Handles simple "!" call
@@ -124,8 +126,12 @@ client.on("message", async (message) => {
 		message.channel.send(diceMultiCommand(command.substring(0, command.indexOf(' ')), mesUser, command.substring(command.indexOf(' ')))).catch(error => logError(error));
 
 	// Multi Dice Roll shortcut
-     else if (command.startsWith("d") && (command.indexOf(' ') >= 0))
+    else if (command.startsWith("d") && (command.indexOf(' ') >= 0))
         message.channel.send(diceMultiCommand("roll" + command.substring(0, command.indexOf(' ')), mesUser, command.substring(command.indexOf(' ')))).catch(error => logError(error));
+
+	// Handles Remind Me command
+	else if (command.startsWith("remindme"))
+		message.channel.send(await remindMeCommand(command, mesUsr2)).catch(error => logError(error));
 
 	// Checks if dynamic command exists
 	else if (commandList.has(command))
@@ -341,6 +347,27 @@ function quickTranslateFrom(command) {
 	let text = command.substring(command.indexOf(' ') + 1);
 
 	return translate(text, { from: 'ja', engine: 'yandex', key: yandCode });
+}
+
+// 
+function delayMessage(delay, message, user) {
+	return new Promise(resolve => {
+		setTimeout(() => {
+			let result = '<@' + user + '> ' + message;
+			resolve(result);
+		}, delay);
+	});
+}
+
+// 
+async function remindMeCommand(command, mesUser) {
+	let str = command.substring(command.indexOf(' ') + 1);
+	let num = str.substring(0, str.indexOf(' '));
+
+	let delay = parseInt(num, 10);
+	str = str.substring(str.indexOf(' ') + 1);
+
+	return delayMessage(delay, str, mesUser);
 }
 
 // Form !begone
