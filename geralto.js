@@ -7,7 +7,7 @@ const async = require('async');
 const util = require('util');
 
 // Sets Geralto version
-let version = "14";
+let version = "15";
 
 // Set the prefix
 let prefix = "!";
@@ -18,13 +18,21 @@ let commandList = new Map();
 // Builds Time multiplier
 let timeMap = new Map([
 	['millisecond', 1],
+	['msec', 1],
 	['milliseconds', 1],
+	['msecs', 1],
 	['second', 1000],
+	['sec', 1000],
 	['seconds', 1000],
+	['secs', 1000],
 	['minute', 60000],
+	['min', 60000],
 	['minutes', 60000],
+	['mins', 60000],
 	['hour', 3600000],
+	['hr', 3600000],
 	['hours', 3600000],
+	['hrs', 3600000],
 	['day', 86400000],
 	['days', 86400000],
 	['week', 604800000],
@@ -195,7 +203,8 @@ function helpCommand(display) {
 	helpStr		+= "    !dx             : Shortcut to roll dice from 2->x\n";
 	helpStr		+= "    !rolldx y       : Rolls y dx's\n";
 	helpStr		+= "    !dx y           : Rolls y dx's\n";
-	
+	helpStr		+= "	!remind x y z	: Reminds x (username or \"me\") for y amount of time in unit x\n";
+
 	helpStr		+= "    * Ask Kosba if you need another question answered, help commands are a PITA\n";
 	helpStr		+= "```";
 
@@ -384,18 +393,18 @@ async function remindCommand(command, mesUser) {
 	if (args.length < 2)
 		return "Insufficient Arguments.\n\tFormat: !remind [target] [number] [unit]";
 
-
 	let target = args[0];
 	if (target == "me")
 		target = mesUser;
 	else
 	{
 		try {
-			target = client.users.find("username", target).id;	
+			target = client.users.find(user => user.username === target).id;	
 		} catch (e) {
 			return "Invalid Username provided. Lookup failed.";
 		}
 	}
+
 	let num = parseInt(args[1], 10);
 	if (isNaN(num))
 		return "Expected Argument Number couldn't be parsed.\n\tFormat: !remind [target] [number] [unit]";
@@ -412,22 +421,6 @@ async function remindCommand(command, mesUser) {
 		for (let i = 3; i < args.length; i++)
 			ret += (args[i] + " ");
 
-
-	/*if (unit == "")
-		unit = str.substring(str.indexOf(' ') + 1);
-
-	console.log("Unit is \"" + unit + "\"\n");
-
-	if (!timeMap.has(unit))
-		return "Invalid time Unit.";
-	
-	let mult = parseInt(timeMap.get(unit), 10);	
-
-	let delay = parseInt(num, 10);
-	str = str.substring(str.indexOf(' ') + 1);
-
-	return delayMessage(delay * mult, str, mesUser);
-	*/
 	return delayMessage(delay, ret, target);
 }
 
