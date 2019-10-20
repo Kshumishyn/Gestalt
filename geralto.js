@@ -12,8 +12,26 @@ let version = "14";
 // Set the prefix
 let prefix = "!";
 
-// Builds Maps
+// Builds Command Map
 let commandList = new Map();
+
+// Builds Time multiplier
+let timeMap = new Map([
+	['millisecond', 1],
+	['milliseconds', 1],
+	['second', 1000],
+	['seconds', 1000],
+	['minute', 60000],
+	['minutes', 60000],
+	['hour', 3600000],
+	['hours', 3600000],
+	['day', 86400000],
+	['days', 86400000],
+	['week', 604800000],
+	['weeks', 604800000]
+]);
+
+// Builds list of valid countries
 let countryList = [
 	"az", "sq", "am", "en", "ar", "hy", "af", "eu", "ba",
 	"be", "bn", "my", "bg", "bs", "cy", "hu", "vl", "ht",
@@ -114,24 +132,24 @@ client.on("message", async (message) => {
 		message.channel.send(await quickTranslateFrom(command)).catch(error => logError(error));
 
 	// Handles dice roll
-	else if (command.startsWith("rolld") && !(isNaN(command.substr(5))) && (command.indexOf(' ') == -1))
+	else if (command.startsWith("rolld") && !(isNaN(command.substr(5))) && (command.indexOf(" ") == -1))
 		message.channel.send(diceCommand(command, mesUser)).catch(error => logError(error));
 
 	// Dice Roll shortcut
-	else if (command.startsWith("d") && !(isNaN(command.substr(1))) && (command.indexOf(' ') == -1))
+	else if (command.startsWith("d") && !(isNaN(command.substr(1))) && (command.indexOf(" ") == -1))
 		message.channel.send(diceCommand("roll" + command, mesUser)).catch(error => logError(error));
 
 	// Multi Dice Roll
-	else if (command.startsWith("rolld") && (command.indexOf(' ') >= 0))
-		message.channel.send(diceMultiCommand(command.substring(0, command.indexOf(' ')), mesUser, command.substring(command.indexOf(' ')))).catch(error => logError(error));
+	else if (command.startsWith("rolld") && (command.indexOf(" ") >= 0))
+		message.channel.send(diceMultiCommand(command.substring(0, command.indexOf(" ")), mesUser, command.substring(command.indexOf(" ")))).catch(error => logError(error));
 
 	// Multi Dice Roll shortcut
-    else if (command.startsWith("d") && (command.indexOf(' ') >= 0))
-        message.channel.send(diceMultiCommand("roll" + command.substring(0, command.indexOf(' ')), mesUser, command.substring(command.indexOf(' ')))).catch(error => logError(error));
+    else if (command.startsWith("d") && (command.indexOf(" ") >= 0))
+        message.channel.send(diceMultiCommand("roll" + command.substring(0, command.indexOf(" ")), mesUser, command.substring(command.indexOf(" ")))).catch(error => logError(error));
 
-	// Handles Remind Me command
-	else if (command.startsWith("remindme"))
-		message.channel.send(await remindMeCommand(command, mesUsr2)).catch(error => logError(error));
+	// Handles Remind command
+	else if (command.startsWith("remind"))
+		message.channel.send(await remindCommand(command.substring(command.indexOf(" ") + 1), mesUsr2)).catch(error => logError(error));
 
 	// Checks if dynamic command exists
 	else if (commandList.has(command))
@@ -261,7 +279,7 @@ function comListAdd(keyAndValue) {
     comList += "\t!" + key + offset + "=> " + trimValue + "\n```";
 
 	// Appends command to file for future use
-	let stream = fs.createWriteStream("commands.grlt", {flags:'a'});
+	let stream = fs.createWriteStream("commands.grlt", {flags:"a"});
     stream.write(keyAndValue + "\n");
     stream.end();
 
@@ -293,13 +311,13 @@ function comListRemove(key) {
     comList = comList.replace(trimValue, "");
 
 	// Replaces removed Dynamic Messages in configuration file
-    fs.readFile("commands.grlt", 'utf8', function (err,data) {
+    fs.readFile("commands.grlt", "utf8", function (err,data) {
         if (err)
             return console.log(err);
 
         let result = data.replace(command, "");
 
-        fs.writeFile("commands.grlt", result, 'utf8', function (err) {
+        fs.writeFile("commands.grlt", result, "utf8", function (err) {
             if (err) return console.log(err);
 		});
     });
@@ -312,22 +330,21 @@ function comListRemove(key) {
 // Form !translate [option] [code] [string]
 function translateCommand(command) {
     let str = command.substr(10);
-	let option = str.substring(0, str.indexOf(' '));
+	let option = str.substring(0, str.indexOf(" "));
 	str = str.substring(option.length).trim();
 
-	let code = str.substring(0, str.indexOf(' '));
-	let text = str.substring(str.indexOf(' ') + 1);
+	let code = str.substring(0, str.indexOf(" "));
+	let text = str.substring(str.indexOf(" ") + 1);
 
-    // TODO: Add language parameter, check language parameter against valid list of languages and give error feedback
     if (!countryList.includes(code))
 		return "Country Code does not exist.";
 	
 	if (option.startsWith("to"))
-		return translate(text, { to: code, engine: 'yandex', key: yandCode });
+		return translate(text, { to: code, engine: "yandex", key: yandCode });
 
 
 	else if (option.startsWith("from"))
-		return translate(text, { from: code, engine: 'yandex', key: yandCode });
+		return translate(text, { from: code, engine: "yandex", key: yandCode });
 
 	else
 		return "Option \"to\" or \"from\" is malformed.";
@@ -336,38 +353,82 @@ function translateCommand(command) {
 // Shortcut translate to
 // Form !ttj [string]
 function quickTranslateTo(command) {
-	let text = command.substring(command.indexOf(' ') + 1);
+	let text = command.substring(command.indexOf(" ") + 1);
 
-	return translate(text, { to: 'ja', engine: 'yandex', key: yandCode });
+	return translate(text, { to: "ja", engine: "yandex", key: yandCode });
 }
 
 // Shortcut translate from
 // Form !tfj [string]
 function quickTranslateFrom(command) {
-	let text = command.substring(command.indexOf(' ') + 1);
+	let text = command.substring(command.indexOf(" ") + 1);
 
-	return translate(text, { from: 'ja', engine: 'yandex', key: yandCode });
+	return translate(text, { from: "ja", engine: "yandex", key: yandCode });
 }
 
-// 
+// Returns a message but only after a specific delay 
 function delayMessage(delay, message, user) {
 	return new Promise(resolve => {
 		setTimeout(() => {
-			let result = '<@' + user + '> ' + message;
+			let result = "<@" + user + "> " + message;
 			resolve(result);
 		}, delay);
 	});
 }
 
-// 
-async function remindMeCommand(command, mesUser) {
-	let str = command.substring(command.indexOf(' ') + 1);
-	let num = str.substring(0, str.indexOf(' '));
+// Form !remind [target] [number] [unit]
+async function remindCommand(command, mesUser) {
+	let args = command.split(" ");
+
+	// Just !remind or !remind [target]
+	if (args.length < 2)
+		return "Insufficient Arguments.\n\tFormat: !remind [target] [number] [unit]";
+
+
+	let target = args[0];
+	if (target == "me")
+		target = mesUser;
+	else
+	{
+		try {
+			target = client.users.find("username", target).id;	
+		} catch (e) {
+			return "Invalid Username provided. Lookup failed.";
+		}
+	}
+	let num = parseInt(args[1], 10);
+	if (isNaN(num))
+		return "Expected Argument Number couldn't be parsed.\n\tFormat: !remind [target] [number] [unit]";
+	
+	let unit = args[2];
+	if (!timeMap.has(unit))
+		return "Invalid unit provided, if you think it belongs, message me and I'll add it!";
+
+	let mult = timeMap.get(unit);
+	let delay = num * mult;
+
+	let ret = "";
+	if (args.length > 3)
+		for (let i = 3; i < args.length; i++)
+			ret += (args[i] + " ");
+
+
+	/*if (unit == "")
+		unit = str.substring(str.indexOf(' ') + 1);
+
+	console.log("Unit is \"" + unit + "\"\n");
+
+	if (!timeMap.has(unit))
+		return "Invalid time Unit.";
+	
+	let mult = parseInt(timeMap.get(unit), 10);	
 
 	let delay = parseInt(num, 10);
 	str = str.substring(str.indexOf(' ') + 1);
 
-	return delayMessage(delay, str, mesUser);
+	return delayMessage(delay * mult, str, mesUser);
+	*/
+	return delayMessage(delay, ret, target);
 }
 
 // Form !begone
