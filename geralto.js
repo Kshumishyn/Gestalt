@@ -2,7 +2,7 @@ const Discord = require("discord.js");
 const lineReader = require('line-reader');
 const fs = require('fs');
 const client = new Discord.Client();
-const translate = require('translate');
+//const translate = require('translate');
 const async = require('async');
 const util = require('util');
 
@@ -65,7 +65,7 @@ const MAX_TRIM = 100;
 let authCode = fs.readFileSync('auth.code', 'utf8').trim();
 
 // Fetches the yandex api key
-let yandCode = fs.readFileSync('yand.code', 'utf8').trim();
+//let yandCode = fs.readFileSync('yand.code', 'utf8').trim();
 
 // Bot starts
 client.on("ready", client => {
@@ -74,29 +74,29 @@ client.on("ready", client => {
 	// Reads in command file, line by line
 	lineReader.eachLine("commands.grlt", function(line, last) {
 		
-		// Builds Map
-		let cmd = line.substr(0,line.indexOf(' '));
-		let str = line.substr(line.indexOf(' ')+1);
-	    commandList.set(cmd, str);
+	// Builds Map
+	let cmd = line.substr(0,line.indexOf(' '));
+	let str = line.substr(line.indexOf(' ')+1);
+	   	commandList.set(cmd, str);
 	
-		// Builds String of List
-		let offset = "";
-		for (let i = cmd.length; i < MAX_COMM; i++)
-			offset += " ";
+	// Builds String of List
+	let offset = "";
+	for (let i = cmd.length; i < MAX_COMM; i++)
+		offset += " ";
 
 		// Trims the display mappings
-        if (str.length > MAX_TRIM) {
+        if (str.length > MAX_TRIM)
             str = str.substring(0, MAX_TRIM) + "...";
-        }
 
-		// Creates display message for comList
-		comList += "\t!" + cmd + offset + "=> " + str + "\n";
 
-		// Detects when last line has been reached and stops reading
-	    if (last) {
-			comList += "```";
-			return false;
-		}
+	// Creates display message for comList
+	comList += "\t!" + cmd + offset + "=> " + str + "\n";
+
+	// Detects when last line has been reached and stops reading
+	if (last) {
+		comList += "```";
+		return false;
+	}
 	});
 });
 
@@ -128,7 +128,7 @@ client.on("message", async (message) => {
 		message.channel.send(comListCommand(command)).catch(error => logError(error));
 
 	// Handles translate command
-	else if (command.startsWith("translate"))
+	/*else if (command.startsWith("translate"))
 		message.channel.send(await translateCommand(command)).catch(error => logError(error));
 
 	// Translate To shortcut
@@ -138,7 +138,7 @@ client.on("message", async (message) => {
 	// Translate From shortcut
 	else if (command.startsWith("tfj"))
 		message.channel.send(await quickTranslateFrom(command)).catch(error => logError(error));
-
+	*/
 	// Handles dice roll
 	else if (command.startsWith("rolld") && !(isNaN(command.substr(5))) && (command.indexOf(" ") == -1))
 		message.channel.send(diceCommand(command, mesUser)).catch(error => logError(error));
@@ -152,7 +152,7 @@ client.on("message", async (message) => {
 		message.channel.send(diceMultiCommand(command.substring(0, command.indexOf(" ")), mesUser, command.substring(command.indexOf(" ")))).catch(error => logError(error));
 
 	// Multi Dice Roll shortcut
-    else if (command.startsWith("d") && (command.indexOf(" ") >= 0))
+	else if (command.startsWith("d") && (command.indexOf(" ") >= 0))
         message.channel.send(diceMultiCommand("roll" + command.substring(0, command.indexOf(" ")), mesUser, command.substring(command.indexOf(" ")))).catch(error => logError(error));
 
 	// Handles Remind command
@@ -195,10 +195,10 @@ function helpCommand(display) {
 	helpStr		+= "    !comlist view   : Lists out the dynamic commands from configuration\n";
 	helpStr		+= "    !comlist add    : Sets dynamic command x to make bot say y\n";
 	helpStr		+= "    !comlist remove : Removes dynamic command x from configuration\n";
-	helpStr		+= "    !translate to   : Translates from English to a specified language\n";
+	/*helpStr		+= "    !translate to   : Translates from English to a specified language\n";
 	helpStr		+= "    !translate from : Translates to English from a specified language\n";
 	helpStr		+= "    !ttj            : Translates English to Japanese\n";
-	helpStr		+= "    !tfj            : Translates to English from Japanese\n";
+	helpStr		+= "    !tfj            : Translates to English from Japanese\n";*/
 	helpStr		+= "    !rolldx         : Rolls a dice with values from 2->x\n";
 	helpStr		+= "    !dx             : Shortcut to roll dice from 2->x\n";
 	helpStr		+= "    !rolldx y       : Rolls y dx's\n";
@@ -337,7 +337,7 @@ function comListRemove(key) {
 }
 
 // Form !translate [option] [code] [string]
-function translateCommand(command) {
+/*function translateCommand(command) {
     let str = command.substr(10);
 	let option = str.substring(0, str.indexOf(" "));
 	str = str.substring(option.length).trim();
@@ -373,7 +373,7 @@ function quickTranslateFrom(command) {
 	let text = command.substring(command.indexOf(" ") + 1);
 
 	return translate(text, { from: "ja", engine: "yandex", key: yandCode });
-}
+}*/
 
 // Returns a message but only after a specific delay 
 function delayMessage(delay, message, user) {
