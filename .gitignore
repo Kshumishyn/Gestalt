@@ -4,3 +4,4 @@ auth.code
 commands.grlt
 messages.log
 Geralto.code-workspace
+__pycache__/
