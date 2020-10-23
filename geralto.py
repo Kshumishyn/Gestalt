@@ -20,16 +20,21 @@ client = commands.Bot(command_prefix='!')
 async def on_ready():
     # Feedback
     print('{0.user} Version {1} has started.'.format(client, VERSION))
+    await client.change_presence(activity=discord.Game("Winds' Howlin'"))
 
     # Parse Command list
 
-'''@client.command()
-async def '''
 
+# Remind feature
+@client.command(pass_context=True)
+async def remind(ctx):
+    return
 
-@client.command()
+# Kick the bot
+@client.command(pass_context=True)
 async def begone(ctx):
     await ctx.bot.logout()
+
 
 # Runs bot
 client.run(authCode)
