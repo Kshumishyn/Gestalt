@@ -62,7 +62,7 @@ const MAX_COMM = 15;
 const MAX_TRIM = 100;
 
 // Fetches the authorization code
-let authCode = fs.readFileSync('auth.code', 'utf8').trim();
+let authCode = fs.readFileSync('discordAuth.code', 'utf8').trim();
 
 // Fetches the yandex api key
 //let yandCode = fs.readFileSync('yand.code', 'utf8').trim();

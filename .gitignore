@@ -1,7 +1,11 @@
+.gitignore
 /node_modules
 package-lock.json
-auth.code
+discordAuth.code
 commands.grlt
 messages.log
 Geralto.code-workspace
 __pycache__/
+GeraltoVirtual
+Discord Translation Bot-6ea5cf4e9bda.json
+language-codes.csv
