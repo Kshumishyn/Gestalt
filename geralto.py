@@ -134,9 +134,9 @@ async def roll(ctx, roll_query):
         return
 
     # Debugging Info
-    await ctx.send("Got numDice:" + str(numDice) + "\nGot maxRoll:" + str(maxRoll) + 
-                "\nGot rerollFloor:" + str(rerollFloor) + "\nGot numDrop:" + str(numDrop) +
-                "\nMin of rolls:" + str(min(numDice, maxRoll, rerollFloor, numDrop)))
+    #await ctx.send("Got numDice:" + str(numDice) + "\nGot maxRoll:" + str(maxRoll) + 
+    #            "\nGot rerollFloor:" + str(rerollFloor) + "\nGot numDrop:" + str(numDrop) +
+    #            "\nMin of rolls:" + str(min(numDice, maxRoll, rerollFloor, numDrop)))
 
     # Feedback and breakdown of roll
     await ctx.send("Rolling " + roll_query + "...")
