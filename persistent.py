@@ -9,7 +9,7 @@ COM_PRFX = "~"
 MAX_COMM = 15
 MAX_TRIM = 100
 MAX_MESG = 160
-VERSION = "19"
+VERSION = "20"
 
 # Time map
 timeMap = {
@@ -34,6 +34,29 @@ timeMap = {
     'week':604800,
     'weeks':604800
 }
+
+# Time map
+presenceList = [
+    "the beginning.",
+    "the gales.",
+    "the waves.",
+    "the howling.",
+    "the silence.",
+    "the flames.",
+    "the kind.",
+    "the unworthy.",
+    "the sirens.",
+    "the trees.",
+    "the songs.",
+    "the sand.",
+    "the leaves.",
+    "the rustling.",
+    "the whispers.",
+    "the buzz.",
+    "the knocking.",
+    "the abyss.",
+    "the end."
+]
 
 # Dataframe
 countryTmp = pd.read_csv('language-codes.csv').set_index('English').T.to_dict('list')
