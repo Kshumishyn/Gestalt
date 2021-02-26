@@ -1,4 +1,5 @@
 import discord
+import asyncio
 import time
 import random
 import re
@@ -175,10 +176,11 @@ async def remind(ctx, target: discord.Member, number, unit):
 
     # Gets Reminder
     tokens = (ctx.message.content).split()
-    msg = (" ".join(tokens[4:])).replace('&#39;', '')
+    count = len(target.display_name.split(" "))
+    msg = (" ".join(tokens[3 + count:])).replace('&#39;', '')
 
     # Commences wait
-    time.sleep(number * mult)
+    await asyncio.sleep(number * mult)
     await ctx.send(target.mention + " " + msg)
 
 
