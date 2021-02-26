@@ -1,11 +1,9 @@
 .gitignore
+/__pycache__
 /node_modules
+/GestaltVirtual
 package-lock.json
-discordAuth.code
-commands.grlt
-messages.log
-Geralto.code-workspace
-__pycache__/
-GeraltoVirtual
-Discord Translation Bot-6ea5cf4e9bda.json
+googleAuthcode.json
 language-codes.csv
+discordAuth.code
+Gestalt.code-workspace
