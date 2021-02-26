@@ -1,11 +1,9 @@
 import discord
-import asyncio
-import time
 import random
+import asyncio
 import re
 import os
-from discord.ext import commands
-from datetime import datetime
+from discord.ext import commands, tasks
 from persistent import *
 
 
@@ -32,20 +30,28 @@ async def on_ready():
 
     # Feedback
     print('{0.user} Version {1} has started.'.format(bot, VERSION))
-    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="the Hivemind."))
+    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="the beginning."))
+
+    # Starts Random Presence
+    random_presence.start()
 
     # Parse Command list
     # cooode
 
 
 ################################################################################
-# Commands
+# Tasks
 ################################################################################
 
-#@bot.command()
-#async def [command name]:
-#    """"""
-#    print("sample")
+@tasks.loop(minutes=random.randint(1,5))
+async def random_presence():
+    choice = presenceList[random.randint(0, len(presenceList)-1)]
+    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=choice))
+
+
+################################################################################
+# Commands
+################################################################################
 
 # Translate command with directional and language input
 @bot.command()
