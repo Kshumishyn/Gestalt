@@ -2,7 +2,6 @@ import discord
 import random
 import asyncio
 import re
-import os
 from discord.ext import commands, tasks
 from persistent import *
 
@@ -56,10 +55,11 @@ async def random_presence():
 # Translate command with directional and language input
 @bot.command()
 async def translate(ctx, direction, destination):
-    """Translates from detected language to English, or from detected language to any other. Characters beyond limit are trimmed.
+    """Translates from detected language to English, or from detected language to any other. Characters beyond limit are trimmed. Follows general format \"~translate [direction] [destination] [message]\"
 
     direction\t- Describes either "to", "into" or "from" as the direction of translation.
     destination\t- Describes the desired language to translate "to", "into" or "from".
+    message\t- Describes the message to translate.
     """
 
     # Tokenizes entry
@@ -155,9 +155,9 @@ async def roll(ctx, roll_query):
     await ctx.send("Got: " + str(dieRolls) + "\nSum: " + str(sum(dieRolls)))
 
 
-# Reminds
+# Remind a specific user with a message
 @bot.command()
-async def remind(ctx, target: discord.Member, number, unit):
+async def remind(ctx, target: discord.Member, number, unit, *message):
     """Creates an Asynchronous Reminder with general format \"~remind [target] [number] [unit] [message]\"
 
     target\t- Describes the person to remind.
@@ -170,7 +170,7 @@ async def remind(ctx, target: discord.Member, number, unit):
     if not is_number(number):
         await ctx.send("Malformed: Quantity provided is not a number (NaN).")
         return
-    number = int(number)
+    number = int(float(number))
 
     # Does error checking on units
     unit = unit.lower()
@@ -180,14 +180,39 @@ async def remind(ctx, target: discord.Member, number, unit):
         await ctx.send("Malformed: Nonstandard unit provided. Example: \"mins\" or \"minutes\".")
         return
 
-    # Gets Reminder
-    tokens = (ctx.message.content).split()
-    count = len(target.display_name.split(" "))
-    msg = (" ".join(tokens[3 + count:])).replace('&#39;', '')
+    # Formats message
+    message = (" ".join(message)).replace('&#39;', '')
 
     # Commences wait
     await asyncio.sleep(number * mult)
-    await ctx.send(target.mention + " " + msg)
+    await ctx.send(target.mention + " " + message)
+
+
+# Creates a Macro
+@bot.command()
+async def macro_set(ctx, macro, *message):
+    """Creates an Asynchronous Reminder with general format \"~remind [target] [number] [unit] [message]\"
+
+    target\t- Describes the person to remind.
+    number\t- Describes the quantitative duration.
+    unit\t- Describes the unit of time.
+    message\t- The remainder of the command is sent upon Reminder's expiration.
+    """
+
+    # Does error checking on number
+    print("shit")
+
+
+# Reminds
+@bot.command()
+async def macro(ctx, *args):
+    """Attempts to use an existing Macro
+
+    macro\t- Describes the desired macro to lookup.
+    """
+
+    # Feedback
+    await ctx.send("Got Macro: " + str(args))
 
 
 # Handles unrecognized commands

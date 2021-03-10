@@ -1,3 +1,5 @@
+import os
+import json
 import pandas as pd
 
 ################################################################################
@@ -58,9 +60,17 @@ presenceList = [
     "the end."
 ]
 
+# Macro Map
+macroMap = {"test":"The test Macro!"}
+if not os.path.exists("macro-dictionary.json"):
+    with open("macro-dictionary.json", "w") as json_file:
+        json.dump(macroMap, json_file)
+with open("macro-dictionary.json") as json_file:
+    macroMap = json.load(json_file)
+
 # Dataframe
-countryTmp = pd.read_csv('language-codes.csv').set_index('English').T.to_dict('list')
 countryMap = {}
+countryTmp = pd.read_csv("language-codes.csv").set_index("English").T.to_dict("list")
 for k,v in countryTmp.items():
     for country in k.split(';'):
         countryMap[country.strip().lower()] = "".join(v)
