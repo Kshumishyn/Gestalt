@@ -220,10 +220,10 @@ async def macro_list(ctx):
     """
 
     # Fetches macro list
-    await ctx.send("Macro List:\n" + "\n".join([str("\"" + k + ": " + " ".join(v.split(" ")[:min(len(v), 12)]) + "\"\n") for k,v in macroMap.items()]))
+    await ctx.send("Macro List:\n\n" + "\n".join([str(k + ":\n\"" + " ".join(v.split(" ")[:min(len(v), MAX_PRVW)]) + "\"\n") for k,v in macroMap.items()]))
 
 
-# Does a Macro lookup
+# Uses a macro
 @bot.command()
 async def macro(ctx, macro):
     """Attempts to use an existing Macro.
@@ -239,8 +239,31 @@ async def macro(ctx, macro):
         await ctx.send("Macro: " + macro + " was not in the macro mapping, try again.")
         return
 
-    # Fetches macro
+    # Uses macro
     await ctx.send(macroMap[macro])
+
+
+# Removes a macro
+@bot.command()
+async def macro_remove(ctx, macro):
+    """Attempts to remove an existing Macro.
+
+    macro\t- Describes the desired macro to lookup.
+    """
+
+    # Processes
+    macro = str(macro)
+
+    # Validates Macro
+    if macro not in macroMap:
+        await ctx.send("Macro: " + macro + " was not in the macro mapping, try again.")
+        return
+
+    # Removes macro
+    macroMap.pop(macro)
+    with open("macro-dictionary.json", "w") as json_file:
+        json.dump(macroMap, json_file)
+    await ctx.send("Successfully removed macro: " + macro)
 
 
 # Handles unrecognized commands

@@ -8,8 +8,7 @@ import pandas as pd
 
 # Global constants
 COM_PRFX = "~"
-MAX_COMM = 15
-MAX_TRIM = 100
+MAX_PRVW = 15
 MAX_MESG = 160
 VERSION = "20"
 
