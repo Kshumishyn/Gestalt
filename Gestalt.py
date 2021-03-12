@@ -212,7 +212,18 @@ async def macro_set(ctx, macro, *message):
     with open("macro-dictionary.json", "w") as json_file:
             json.dump(macroMap, json_file)
 
-# Reminds
+
+# Lists existing macros
+@bot.command()
+async def macro_list(ctx):
+    """Iterates through macroMap and lists the Macros
+    """
+
+    # Fetches macro list
+    await ctx.send("Macro List:\n" + "\n".join([str("\"" + k + ": " + " ".join(v.split(" ")[:min(len(v), 12)]) + "\"\n") for k,v in macroMap.items()]))
+
+
+# Does a Macro lookup
 @bot.command()
 async def macro(ctx, macro):
     """Attempts to use an existing Macro.
