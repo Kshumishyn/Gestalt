@@ -142,17 +142,18 @@ async def roll(ctx, roll_query):
             await ctx.send("Malformed: Negative values are unacceptable.")
         return
 
-    # Feedback and breakdown of roll
-    await ctx.send("Rolling " + roll_query + "...")
-
+    # Accumulates rolls
     dieRolls = []
     for i in range(numDice):
         dieRolls.append(random.randint(rerollFloor,maxRoll))
 
+    # Trims lowest rolls
     dieRolls.sort(reverse=True)
     if numDrop > 0:
         del dieRolls[-numDrop:]
-    await ctx.send("Got: " + str(dieRolls) + "\nSum: " + str(sum(dieRolls)))
+
+    # Provides roll feedback
+    await ctx.send("Rolling " + roll_query + "...\nGot: " + str(dieRolls) + "\nSum: " + str(sum(dieRolls)))
 
 
 # Remind a specific user with a message
