@@ -61,7 +61,7 @@ presenceList = [
 ]
 
 # Macro Map
-macroMap = {"test":"The test Macro!"}
+macroMap = {}
 if not os.path.exists("macro-dictionary.json"):
     with open("macro-dictionary.json", "w") as json_file:
         json.dump(macroMap, json_file)

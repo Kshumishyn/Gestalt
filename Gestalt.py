@@ -191,34 +191,52 @@ async def remind(ctx, target: discord.Member, number, unit, *message):
 # Creates a Macro
 @bot.command()
 async def macro_set(ctx, macro, *message):
-    """Creates an Asynchronous Reminder with general format \"~remind [target] [number] [unit] [message]\"
+    """Attempts to create a Macro mapping to a message.
 
-    target\t- Describes the person to remind.
-    number\t- Describes the quantitative duration.
-    unit\t- Describes the unit of time.
-    message\t- The remainder of the command is sent upon Reminder's expiration.
+    macro\t- Describes the desired macro to create.
+    message\t- Describes the message to map to.
     """
 
-    # Does error checking on number
-    print("shit")
+    # Processes
+    macro = str(macro)
+    message = " ".join(message).replace("\\n", "\n")
 
+    # Validates Macro
+    if macro in macroMap:
+        await ctx.send("Macro: " + macro + " already in the macro mapping, try again.")
+        return
+
+    # Adds to Macro Map
+    macroMap[macro] = message
+    with open("macro-dictionary.json", "w") as json_file:
+            json.dump(macroMap, json_file)
 
 # Reminds
 @bot.command()
-async def macro(ctx, *args):
-    """Attempts to use an existing Macro
+async def macro(ctx, macro):
+    """Attempts to use an existing Macro.
 
     macro\t- Describes the desired macro to lookup.
     """
 
-    # Feedback
-    await ctx.send("Got Macro: " + str(args))
+    # Processes
+    macro = str(macro)
+
+    # Validates Macro
+    if macro not in macroMap:
+        await ctx.send("Macro: " + macro + " was not in the macro mapping, try again.")
+        return
+
+    # Fetches macro
+    await ctx.send(macroMap[macro])
 
 
 # Handles unrecognized commands
 @bot.event
 async def on_command_error(ctx, error):
     """Handles broad scope errors.
+
+    error\t- The specific error type.
     """
     if isinstance(error, commands.CommandNotFound):
         await ctx.send("Malformed: Command not found, seek ~help.")
