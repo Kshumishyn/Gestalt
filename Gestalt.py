@@ -13,11 +13,11 @@ from persistent import *
 # Fetches configuration information
 comList = []
 discordAuthcode = ""
-with open('discordAuth.code', 'r') as discordAuthfile:
+with open(DAC_FILE, "r") as discordAuthfile:
     discordAuthcode = discordAuthfile.read().strip()
 
 # Sets Google's credentials
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="googleAuthcode.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = GAJ_FILE
 help_overwrite = commands.DefaultHelpCommand(no_category='Commands')
 bot = commands.Bot(command_prefix=COM_PRFX, description="Gestalt's Help Menu", help_command=help_overwrite)
 
@@ -209,7 +209,7 @@ async def macro_set(ctx, macro, *message):
 
     # Adds to Macro Map
     macroMap[macro] = message
-    with open("macro-dictionary.json", "w") as json_file:
+    with open(MDJ_FILE, "w") as json_file:
             json.dump(macroMap, json_file)
 
 
@@ -261,7 +261,7 @@ async def macro_remove(ctx, macro):
 
     # Removes macro
     macroMap.pop(macro)
-    with open("macro-dictionary.json", "w") as json_file:
+    with open(MDJ_FILE, "w") as json_file:
         json.dump(macroMap, json_file)
     await ctx.send("Successfully removed macro: " + macro)
 
@@ -278,7 +278,9 @@ async def on_command_error(ctx, error):
     elif isinstance(error, commands.MemberNotFound):
         await ctx.send("Malformed: Sought member was not found in active server.")
     else:
-        await ctx.send("Malformed: Unhandled Error.")
+        await ctx.send("Malformed: Unhandled Error. Writing to file.")
+        with open(ERR_FILE, "a+") as error_file:
+            error_file.write(str(datetime.datetime.now()) + ":\n" + str(error) + "\n\n")
         raise error
 
 

@@ -1,4 +1,5 @@
 import os
+import datetime
 import json
 import pandas as pd
 
@@ -8,9 +9,16 @@ import pandas as pd
 
 # Global constants
 COM_PRFX = "~"
-MAX_PRVW = 15
+MAX_PRVW = 18
 MAX_MESG = 160
 VERSION = "20"
+
+# Filenames
+ERR_FILE = "error.log"
+DAC_FILE = "discordAuth.code"
+GAJ_FILE = "googleAuthcode.json"
+MDJ_FILE = "macro-dictionary.json"
+LCC_FILE = "language-codes.csv"
 
 # Time map
 timeMap = {
@@ -61,15 +69,15 @@ presenceList = [
 
 # Macro Map
 macroMap = {}
-if not os.path.exists("macro-dictionary.json"):
-    with open("macro-dictionary.json", "w") as json_file:
+if not os.path.exists(MDJ_FILE):
+    with open(MDJ_FILE, "w") as json_file:
         json.dump(macroMap, json_file)
-with open("macro-dictionary.json") as json_file:
+with open(MDJ_FILE) as json_file:
     macroMap = json.load(json_file)
 
 # Dataframe
 countryMap = {}
-countryTmp = pd.read_csv("language-codes.csv").set_index("English").T.to_dict("list")
+countryTmp = pd.read_csv(LCC_FILE).set_index("English").T.to_dict("list")
 for k,v in countryTmp.items():
     for country in k.split(';'):
         countryMap[country.strip().lower()] = "".join(v)
@@ -86,6 +94,7 @@ def translate_text(target, text):
     Target must be an ISO 639-1 language code.
     See https://g.co/cloud/translate/v2/translate-reference#supported_languages
     """
+
     import six
     from google.cloud import translate_v2 as translate
 
@@ -100,10 +109,12 @@ def translate_text(target, text):
 
     return result["translatedText"]
 
+
 # ISO-639-1 Language lookup function
 def language_lookup(target):
     """Translates language name into 639-1 language code.
     """
+
     country_code = None
     target = target.lower()
 
