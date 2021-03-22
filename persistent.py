@@ -11,7 +11,7 @@ import pandas as pd
 COM_PRFX = "~"
 MAX_PRVW = 18
 MAX_MESG = 160
-VERSION = "20"
+VERSION = "21"
 
 # Filenames
 ERR_FILE = "error.log"
@@ -22,26 +22,26 @@ LCC_FILE = "language-codes.csv"
 
 # Time map
 timeMap = {
-    'millisecond':.001,
-    'msec':.001,
-    'milliseconds':.001,
-    'msecs':.001,
-    'second':1,
-    'sec':1,
-    'seconds':1,
-    'secs':1,
-    'minute':60,
-    'min':60,
-    'minutes':60,
-    'mins':60,
-    'hour':3600,
-    'hr':3600,
-    'hours':3600,
-    'hrs':3600,
-    'day':86400,
-    'days':86400,
-    'week':604800,
-    'weeks':604800
+    "millisecond":.001,
+    "msec":.001,
+    "milliseconds":.001,
+    "msecs":.001,
+    "second":1,
+    "sec":1,
+    "seconds":1,
+    "secs":1,
+    "minute":60,
+    "min":60,
+    "minutes":60,
+    "mins":60,
+    "hour":3600,
+    "hr":3600,
+    "hours":3600,
+    "hrs":3600,
+    "day":86400,
+    "days":86400,
+    "week":604800,
+    "weeks":604800
 }
 
 # Time map
@@ -67,6 +67,9 @@ presenceList = [
     "the end."
 ]
 
+# Nomination instance - Format: {instance_name : {user : nomination}}
+nominationMap = {}
+
 # Macro Map
 macroMap = {}
 if not os.path.exists(MDJ_FILE):
@@ -79,7 +82,7 @@ with open(MDJ_FILE) as json_file:
 countryMap = {}
 countryTmp = pd.read_csv(LCC_FILE).set_index("English").T.to_dict("list")
 for k,v in countryTmp.items():
-    for country in k.split(';'):
+    for country in k.split(";"):
         countryMap[country.strip().lower()] = "".join(v)
 
 

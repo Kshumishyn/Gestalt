@@ -18,7 +18,7 @@ with open(DAC_FILE, "r") as discordAuthfile:
 
 # Sets Google's credentials
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = GAJ_FILE
-help_overwrite = commands.DefaultHelpCommand(no_category='Commands')
+help_overwrite = commands.DefaultHelpCommand(no_category="Commands")
 bot = commands.Bot(command_prefix=COM_PRFX, description="Gestalt's Help Menu", help_command=help_overwrite)
 
 # Bot Initialization
@@ -28,14 +28,11 @@ async def on_ready():
     """
 
     # Feedback
-    print('{0.user} Version {1} has started.'.format(bot, VERSION))
+    print("{0.user} Version {1} has started.".format(bot, VERSION))
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="the beginning."))
 
     # Starts Random Presence
     random_presence.start()
-
-    # Parse Command list
-    # cooode
 
 
 ################################################################################
@@ -65,7 +62,7 @@ async def translate(ctx, direction, destination):
     # Tokenizes entry
     tokens = (ctx.message.content).split()
     direction = direction.lower()
-    msg = (" ".join(tokens[3:])).replace('&#39;', '')
+    msg = (" ".join(tokens[3:])).replace("&#39;", "")
 
     # Imposes character limit
     if len(msg) > MAX_MESG:
@@ -76,11 +73,11 @@ async def translate(ctx, direction, destination):
     if direction == "into" or direction == "to":
         language_code = language_lookup(destination)
         if language_code is not None:
-            await ctx.send(str(translate_text(language_code, msg)).replace('&#39;', ''))
+            await ctx.send(str(translate_text(language_code, msg)).replace("&#39;", ""))
         else:
             await ctx.send("Could not find desired language.")
     elif direction == "from":
-        await ctx.send(str(translate_text("en", msg)).replace('&#39;', ''))
+        await ctx.send(str(translate_text("en", msg)).replace("&#39;", ""))
     else:
         await ctx.send("Could not recognize desired direction, try \"into\",\"to\" or \"from\" instead.")
 
@@ -109,13 +106,13 @@ async def roll(ctx, roll_query):
         return
 
     # Captures number of dice to drop
-    numDrop = int(dCapture[1].split('d')[1]) if len(dCapture) == 2 else 0
+    numDrop = int(dCapture[1].split("d")[1]) if len(dCapture) == 2 else 0
 
     # Captures minimum roll value before reroll
     rerollFloor = int(rCapture[0].split("r")[1]) if len(rCapture) == 1 else 1
 
     # Captures primary roll information
-    numDice = dCapture[0].split('d')
+    numDice = dCapture[0].split("d")
     maxRoll = int(numDice[1])
     numDice = int(numDice[0]) if len(numDice[0]) > 0 else 1
 
@@ -182,11 +179,138 @@ async def remind(ctx, target: discord.Member, number, unit, *message):
         return
 
     # Formats message
-    message = (" ".join(message)).replace('&#39;', '')
+    message = (" ".join(message)).replace("&#39;", "")
 
     # Commences wait
     await asyncio.sleep(number * mult)
     await ctx.send(target.mention + " " + message)
+
+
+# Creates a Nomination Instance
+@bot.command()
+async def begin_noms(ctx, inst_name):
+    """Attempts to start a nomination instance with a given name.
+
+    inst_name\t- The desired name of instance to add.
+    """
+
+    # Creates a tuple unique to the server
+    guildID = ctx.message.guild.id
+    unique_inst = (guildID, inst_name.lower())
+
+    # Checks if nomination instance already exists on this server
+    if unique_inst in nominationMap:
+        await ctx.send("Nomination Instance: " + str(inst_name) + " already in the nominations, try again.")
+        return
+
+    # Adds the instance of nomination
+    nominationMap[unique_inst] = {}
+    await ctx.send("Started Nominations instance for \"" + str(inst_name) + ".\"")
+
+
+# Ends a Nomination Instance
+@bot.command()
+async def cancel_noms(ctx, inst_name):
+    """Attempts to remove a nomination instance with a given name.
+
+    inst_name\t- The desired name of nomination instance to remove.
+    """
+
+    # Creates a tuple unique to the server
+    guildID = ctx.message.guild.id
+    unique_inst = (guildID, inst_name.lower())
+
+    # Checks if nomination instance exists on this server
+    if unique_inst not in nominationMap:
+        await ctx.send("Nomination Instance: " + str(inst_name) + " cannot be removed because it does not exist, try again.")
+        return
+
+    # Removes nomination instance
+    del nominationMap[unique_inst]
+    await ctx.send("Cancelled Nominations instance for \"" + str(inst_name) + ".\"")
+
+
+# Add a nomination
+@bot.command()
+async def nom_add(ctx, inst_name, *nom):
+    """Attempts to add a nomination to an existing nomination instance.
+
+    inst_name\t- The desired name of nomination instance to add to.
+    nom\t\t- The desired nomination
+    """
+
+    # Creates a tuple unique to the server
+    guildID = ctx.message.guild.id
+    unique_inst = (guildID, inst_name.lower())
+
+    # Checks if nomination instance exists on this server
+    if unique_inst not in nominationMap:
+        await ctx.send("Nomination Instance: " + str(inst_name) + " does not exist, try again.")
+        return
+
+    # Adds nomination to the instance
+    userID = ctx.author.id
+    nominationMap[unique_inst][userID] = " ".join(nom)
+
+    # Removes request message for anonymity
+    await ctx.message.delete()
+
+
+# Removes a nomination
+@bot.command()
+async def nom_remove(ctx, inst_name):
+    """Attempts to remove a nomination from an existing nomination instance.
+
+    inst_name\t- The desired name of nomination instance to remove from.
+    """
+
+    # Creates a tuple unique to the server
+    guildID = ctx.message.guild.id
+    unique_inst = (guildID, inst_name.lower())
+
+    # Checks if nomination instance exists on this server
+    if unique_inst not in nominationMap:
+        await ctx.send("Nomination Instance: " + str(inst_name) + " does not exist, try again.")
+        return
+
+    # Removes nomination from the instance
+    userID = ctx.author.id
+    del nominationMap[unique_inst][userID]
+
+    # Removes request message for anonymity
+    await ctx.message.delete()
+
+
+# Lists all active nominations
+@bot.command()
+async def nom_list(ctx, inst_name):
+    """Attempts to list nominations for an existing nomination instance.
+
+    inst_name\t- The desired name of nomination instance whose nominations to list.
+    """
+
+    # Creates a tuple unique to the server
+    guildID = ctx.message.guild.id
+    unique_inst = (guildID, inst_name.lower())
+
+    # Checks if nomination instance exists on this server
+    if unique_inst not in nominationMap:
+        await ctx.send("Nomination Instance: " + str(inst_name) + " does not exist, try again.")
+        return
+
+    # Creates list of current nominations
+    await ctx.send("Nominations for " + str(inst_name) + ":\n" + "\n".join(str(nominationMap[unique_inst][nom]) for nom in sorted(nominationMap[unique_inst])))
+
+
+# Transfers Nomination Instance into a Voting Instance
+@bot.command()
+async def begin_voting(ctx, inst_name):
+    """Attempts to start a voting instance using the already built nomination instance.
+
+    inst_name\t- The desired name of nomination instance whose nominations to create votes for.
+    """
+
+    await ctx.send("Beginning Voting for \"" + str(inst_name) + ".\"")
 
 
 # Creates a Macro
@@ -242,6 +366,9 @@ async def macro(ctx, macro):
     # Uses macro
     await ctx.send(macroMap[macro])
 
+    # Removes request message for cleanliness
+    await ctx.message.delete()
+
 
 # Removes a macro
 @bot.command()
@@ -273,10 +400,15 @@ async def on_command_error(ctx, error):
 
     error\t- The specific error type.
     """
+
     if isinstance(error, commands.CommandNotFound):
         await ctx.send("Malformed: Command not found, seek ~help.")
     elif isinstance(error, commands.MemberNotFound):
         await ctx.send("Malformed: Sought member was not found in active server.")
+    elif isinstance(error, commands.MissingPermissions):
+        await ctx.send("Malformed: Missing permissions to perform deletion.")
+    elif isinstance(error, commands.MissingRequiredArgument):
+        await ctx.send("Malformed: Command is missing arguments, type \"~help [command]\" to see syntax.")
     else:
         await ctx.send("Malformed: Unhandled Error. Writing to file.")
         with open(ERR_FILE, "a+") as error_file:
@@ -289,6 +421,9 @@ async def on_command_error(ctx, error):
 async def begone(ctx):
     """Kills the bot script. Please only use if you know what you're doing.
     """
+
+    # Removes request message for cleanliness
+    await ctx.message.delete()
 
     # Kills the bot
     await ctx.bot.logout()
