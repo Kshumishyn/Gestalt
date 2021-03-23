@@ -1,8 +1,10 @@
 import discord
 import random
 import asyncio
+import datetime
 import re
 from discord.ext import commands, tasks
+from string import ascii_lowercase
 from persistent import *
 
 
@@ -165,7 +167,7 @@ async def remind(ctx, target: discord.Member, number, unit, *message):
     """
 
     # Does error checking on number
-    if not is_number(number):
+    if not isnumber(number):
         await ctx.send("Malformed: Quantity provided is not a number (NaN).")
         return
     number = int(float(number))
@@ -299,7 +301,7 @@ async def nom_list(ctx, inst_name):
         return
 
     # Creates list of current nominations
-    await ctx.send("Nominations for " + str(inst_name) + ":\n" + "\n".join(str(nominationMap[unique_inst][nom]) for nom in sorted(nominationMap[unique_inst])))
+    await ctx.send("Nominations for " + str(inst_name) + ":\n" + "\n".join(str(nominationMap[unique_inst][key]) for key in sorted(nominationMap[unique_inst])))
 
 
 # Transfers Nomination Instance into a Voting Instance
@@ -310,8 +312,38 @@ async def begin_voting(ctx, inst_name):
     inst_name\t- The desired name of nomination instance whose nominations to create votes for.
     """
 
-    await ctx.send("Beginning Voting for \"" + str(inst_name) + ".\"")
+    # Creates a tuple unique to the server
+    guildID = ctx.message.guild.id
+    unique_inst = (guildID, inst_name.lower())
 
+    # Checks if nomination instance exists on this server
+    if unique_inst not in nominationMap:
+        await ctx.send("Nomination Instance: " + str(inst_name) + " does not exist, try again.")
+        return
+
+    # Checks if nomination instance has been developed
+    if len(nominationMap[unique_inst]) == 0:
+        await ctx.send("Nomination Instance: " + str(inst_name) + " is empty, try again.")
+        return
+
+    # Prepares Table
+    table = ""
+    letter_iter = 0
+    for key in sorted(nominationMap[unique_inst]):
+        table = table + ":" + "regional_indicator_" + ascii_lowercase[letter_iter] + ": : " + str(nominationMap[unique_inst][key]) + "\n"
+        letter_iter = letter_iter + 1
+
+    # Sends formatted voting table
+    ownMessage = await ctx.send("Beginning Voting for \"" + str(inst_name) + ".\"\n\n" + table)
+
+    # Adds reactions to own message
+    for i in range(0,letter_iter):
+        emote = regional_indicators[ascii_lowercase[i]]
+        await ownMessage.add_reaction(emote)
+
+    # Clears nomination from list
+    del nominationMap[unique_inst]
+    
 
 # Creates a Macro
 @bot.command()
