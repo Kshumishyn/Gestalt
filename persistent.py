@@ -84,7 +84,7 @@ presenceList = [
     "the end."
 ]
 
-# Nomination instance - Format: {instance_name : {user : nomination}}
+# Nomination instance - Format: {(guildID, instance_name): {userID : nomination}}
 nominationMap = {}
 
 # Macro Map
