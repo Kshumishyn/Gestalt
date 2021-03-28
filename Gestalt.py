@@ -53,7 +53,7 @@ async def random_presence():
 
 # Translate command with directional and language input
 @bot.command()
-async def translate(ctx, direction, destination):
+async def translate(ctx, direction, destination, *message):
     """Translates from detected language to English, or from detected language to any other. Characters beyond limit are trimmed. Follows general format \"~translate [direction] [destination] [message]\"
 
     direction\t- Describes either "to", "into" or "from" as the direction of translation.
@@ -62,24 +62,23 @@ async def translate(ctx, direction, destination):
     """
 
     # Tokenizes entry
-    tokens = (ctx.message.content).split()
     direction = direction.lower()
-    msg = (" ".join(tokens[3:])).replace("&#39;", "")
+    message = " ".join(message).replace("&#39;", "")
 
     # Imposes character limit
-    if len(msg) > MAX_MESG:
+    if len(message) > MAX_MESG:
         await ctx.send("Message is longer than " + str(MAX_MESG) + " characters, trimming to " + str(MAX_MESG) + ".")
-        msg = msg[:MAX_MESG]
+        message = message[:MAX_MESG]
 
     # Breaks down by direction and language
     if direction == "into" or direction == "to":
         language_code = language_lookup(destination)
         if language_code is not None:
-            await ctx.send(str(translate_text(language_code, msg)).replace("&#39;", ""))
+            await ctx.send(str(translate_text(language_code, message)).replace("&#39;", ""))
         else:
             await ctx.send("Could not find desired language.")
     elif direction == "from":
-        await ctx.send(str(translate_text("en", msg)).replace("&#39;", ""))
+        await ctx.send(str(translate_text("en", message)).replace("&#39;", ""))
     else:
         await ctx.send("Could not recognize desired direction, try \"into\",\"to\" or \"from\" instead.")
 
@@ -207,7 +206,7 @@ async def begin_noms(ctx, inst_name):
 
     # Adds the instance of nomination
     nominationMap[unique_inst] = {}
-    await ctx.send("Started Nominations instance for \"" + str(inst_name) + ".\"")
+    await ctx.send("Started Nominations instance for " + str(inst_name) + ".")
 
 
 # Ends a Nomination Instance
@@ -229,7 +228,7 @@ async def cancel_noms(ctx, inst_name):
 
     # Removes nomination instance
     del nominationMap[unique_inst]
-    await ctx.send("Cancelled Nominations instance for \"" + str(inst_name) + ".\"")
+    await ctx.send("Cancelled Nominations instance for " + str(inst_name) + ".")
 
 
 # Add a nomination
@@ -254,6 +253,9 @@ async def nom_add(ctx, inst_name, *nom):
     userID = ctx.author.id
     nominationMap[unique_inst][userID] = " ".join(nom)
 
+    # Creates list of current nominations
+    await ctx.send("Nominations for " + str(inst_name) + ":\n" + "\n".join(str(nominationMap[unique_inst][key]) for key in sorted(nominationMap[unique_inst])), delete_after=60)
+
     # Removes request message for anonymity
     await ctx.message.delete()
 
@@ -277,7 +279,10 @@ async def nom_remove(ctx, inst_name):
 
     # Removes nomination from the instance
     userID = ctx.author.id
-    del nominationMap[unique_inst][userID]
+    nominationMap[unique_inst].pop(userID, None)
+
+    # Creates list of current nominations
+    messageID = await ctx.send("Nominations for " + str(inst_name) + ":\n" + "\n".join(str(nominationMap[unique_inst][key]) for key in sorted(nominationMap[unique_inst])), delete_after=60)
 
     # Removes request message for anonymity
     await ctx.message.delete()
@@ -301,16 +306,22 @@ async def nom_list(ctx, inst_name):
         return
 
     # Creates list of current nominations
-    await ctx.send("Nominations for " + str(inst_name) + ":\n" + "\n".join(str(nominationMap[unique_inst][key]) for key in sorted(nominationMap[unique_inst])))
+    messageID = await ctx.send("Nominations for " + str(inst_name) + ":\n" + "\n".join(str(nominationMap[unique_inst][key]) for key in sorted(nominationMap[unique_inst])))
+
+    # Removes request message for cleanliness
+    await ctx.message.delete()
 
 
 # Transfers Nomination Instance into a Voting Instance
 @bot.command()
-async def begin_voting(ctx, inst_name):
+async def begin_voting(ctx, inst_name, *message):
     """Attempts to start a voting instance using the already built nomination instance.
 
     inst_name\t- The desired name of nomination instance whose nominations to create votes for.
     """
+
+    # Processes
+    message = " ".join(message)
 
     # Creates a tuple unique to the server
     guildID = ctx.message.guild.id
@@ -334,7 +345,7 @@ async def begin_voting(ctx, inst_name):
         letter_iter = letter_iter + 1
 
     # Sends formatted voting table
-    ownMessage = await ctx.send("Beginning Voting for \"" + str(inst_name) + ".\"\n\n" + table)
+    ownMessage = await ctx.send("Beginning Voting for \"" + str(inst_name) + ".\"\nCustom Message: " + message + "\n\n" + table)
 
     # Adds reactions to own message
     for i in range(0,letter_iter):
@@ -342,7 +353,7 @@ async def begin_voting(ctx, inst_name):
         await ownMessage.add_reaction(emote)
 
     # Clears nomination from list
-    del nominationMap[unique_inst]
+    nominationMap.pop(unique_inst, None)
     
 
 # Creates a Macro
