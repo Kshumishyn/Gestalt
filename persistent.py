@@ -1,6 +1,9 @@
 import os
 import json
 import pandas as pd
+import random
+import discord
+from discord.ext import commands, tasks
 
 
 ################################################################################
@@ -11,7 +14,8 @@ import pandas as pd
 COM_PRFX = "~"
 MAX_PRVW = 18
 MAX_MESG = 160
-VERSION = "22"
+NOM_TOUT = 20
+VERSION = "23"
 
 # Filenames
 ERR_FILE = "error.log"
