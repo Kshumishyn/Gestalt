@@ -206,7 +206,7 @@ async def begin_noms(ctx, inst_name):
 
     # Adds the instance of nomination
     nominationMap[unique_inst] = {}
-    await ctx.send("Started Nominations instance for " + str(inst_name) + ".")
+    await ctx.send("**__Starting Nominations__**\nUse \"" + str(inst_name) + "\" as the code to access this poll. Example:\n`~nom_add " + str(inst_name) + " Who Killed Captain Alex`")
 
 
 # Ends a Nomination Instance
@@ -234,7 +234,7 @@ async def cancel_noms(ctx, inst_name):
 # Add a nomination
 @bot.command()
 async def nom_add(ctx, inst_name, *nom):
-    """Attempts to add a nomination to an existing nomination instance.
+    """Attempts to add a nomination to an existing nomination instance. Displays nomination list for 20 seconds after valid input.
 
     inst_name\t- The desired name of nomination instance to add to.
     nom\t\t- The desired nomination
@@ -254,7 +254,7 @@ async def nom_add(ctx, inst_name, *nom):
     nominationMap[unique_inst][userID] = " ".join(nom)
 
     # Creates list of current nominations
-    await ctx.send("Nominations for " + str(inst_name) + ":\n" + "\n".join(str(nominationMap[unique_inst][key]) for key in sorted(nominationMap[unique_inst])), delete_after=60)
+    await ctx.send("**__Nominations for " + str(inst_name) + ":__**\n" + "\n".join(str(nominationMap[unique_inst][key]) for key in sorted(nominationMap[unique_inst])), delete_after=20)
 
     # Removes request message for anonymity
     await ctx.message.delete()
@@ -263,7 +263,7 @@ async def nom_add(ctx, inst_name, *nom):
 # Removes a nomination
 @bot.command()
 async def nom_remove(ctx, inst_name):
-    """Attempts to remove a nomination from an existing nomination instance.
+    """Attempts to remove a nomination from an existing nomination instance. Displays nomination list for 20 seconds after valid input.
 
     inst_name\t- The desired name of nomination instance to remove from.
     """
@@ -282,7 +282,7 @@ async def nom_remove(ctx, inst_name):
     nominationMap[unique_inst].pop(userID, None)
 
     # Creates list of current nominations
-    messageID = await ctx.send("Nominations for " + str(inst_name) + ":\n" + "\n".join(str(nominationMap[unique_inst][key]) for key in sorted(nominationMap[unique_inst])), delete_after=60)
+    await ctx.send("**__Nominations for " + str(inst_name) + ":__**\n" + "\n".join(str(nominationMap[unique_inst][key]) for key in sorted(nominationMap[unique_inst])), delete_after=20)
 
     # Removes request message for anonymity
     await ctx.message.delete()
@@ -306,7 +306,7 @@ async def nom_list(ctx, inst_name):
         return
 
     # Creates list of current nominations
-    messageID = await ctx.send("Nominations for " + str(inst_name) + ":\n" + "\n".join(str(nominationMap[unique_inst][key]) for key in sorted(nominationMap[unique_inst])))
+    await ctx.send("**__Nominations for " + str(inst_name) + ":__**\n" + "\n".join(str(nominationMap[unique_inst][key]) for key in sorted(nominationMap[unique_inst])))
 
     # Removes request message for cleanliness
     await ctx.message.delete()
@@ -318,6 +318,7 @@ async def begin_voting(ctx, inst_name, *message):
     """Attempts to start a voting instance using the already built nomination instance.
 
     inst_name\t- The desired name of nomination instance whose nominations to create votes for.
+    message\t- An optional message to attach with the start of voting.
     """
 
     # Processes
@@ -345,7 +346,7 @@ async def begin_voting(ctx, inst_name, *message):
         letter_iter = letter_iter + 1
 
     # Sends formatted voting table
-    ownMessage = await ctx.send("Beginning Voting for \"" + str(inst_name) + ".\"\nCustom Message: " + message + "\n\n" + table)
+    ownMessage = await ctx.send("**__Starting Voting for \"" + str(inst_name) + "\"__**" + ("\n" + message if len(message) > 0 else "") + "\n\n" + table + "\n")
 
     # Adds reactions to own message
     for i in range(0,letter_iter):
