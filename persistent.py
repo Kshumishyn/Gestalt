@@ -11,7 +11,7 @@ import pandas as pd
 COM_PRFX = "~"
 MAX_PRVW = 18
 MAX_MESG = 160
-VERSION = "21"
+VERSION = "22"
 
 # Filenames
 ERR_FILE = "error.log"
