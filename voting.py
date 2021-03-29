@@ -174,7 +174,7 @@ class Voting(commands.Cog):
             letter_iter = letter_iter + 1
 
         # Sends formatted voting table
-        ownMessage = await ctx.send("**__Starting Voting for \"" + str(inst_name) + "\"__**" + ("\n" + message if len(message) > 0 else "") + "\n\n" + table + "\n")
+        ownMessage = await ctx.send("**__Starting Voting for \"" + str(inst_name) + "\"__**" + ("\n" + message if len(message) > 0 else "") + "\n" + table + "\n-------------------------")
 
         # Adds reactions to own message
         for i in range(0,letter_iter):
