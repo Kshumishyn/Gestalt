@@ -82,7 +82,7 @@ class Voting(commands.Cog):
         nominationMap[unique_inst][userID] = " ".join(nom)
 
         # Creates list of current nominations
-        await ctx.send("**__Nominations for \"" + str(inst_name) + "\":__**\n" + "\n".join(str(nominationMap[unique_inst][key]) for key in sorted(nominationMap[unique_inst])), delete_after=NOM_TOUT)
+        await ctx.send("**__Nominations for \"" + str(inst_name) + "\":__**\n(This will self-delete in " + str(NOM_TOUT) + " seconds)\n\n" + "\n".join(str(nominationMap[unique_inst][key]) for key in sorted(nominationMap[unique_inst])), delete_after=NOM_TOUT)
 
         # Removes request message for anonymity
         await ctx.message.delete()
@@ -110,7 +110,7 @@ class Voting(commands.Cog):
         nominationMap[unique_inst].pop(userID, None)
 
         # Creates list of current nominations
-        await ctx.send("**__Nominations for \"" + str(inst_name) + "\":__**\n" + "\n".join(str(nominationMap[unique_inst][key]) for key in sorted(nominationMap[unique_inst])), delete_after=NOM_TOUT)
+        await ctx.send("**__Nominations for \"" + str(inst_name) + "\":__**\n(This will self-delete in " + str(NOM_TOUT) + " seconds)\n\n" + "\n".join(str(nominationMap[unique_inst][key]) for key in sorted(nominationMap[unique_inst])), delete_after=NOM_TOUT)
 
         # Removes request message for anonymity
         await ctx.message.delete()
@@ -134,7 +134,7 @@ class Voting(commands.Cog):
             return
 
         # Creates list of current nominations
-        await ctx.send("**__Nominations for \"" + str(inst_name) + "\":__**\n" + "\n".join(str(nominationMap[unique_inst][key]) for key in sorted(nominationMap[unique_inst])))
+        await ctx.send("**__Nominations for \"" + str(inst_name) + "\":__**\n(This will self-delete in " + str(6*NOM_TOUT) + " seconds)\n\n" + "\n".join(str(nominationMap[unique_inst][key]) for key in sorted(nominationMap[unique_inst])), delete_after=(6*NOM_TOUT))
 
         # Removes request message for cleanliness
         await ctx.message.delete()
@@ -174,7 +174,7 @@ class Voting(commands.Cog):
             letter_iter = letter_iter + 1
 
         # Sends formatted voting table
-        ownMessage = await ctx.send("**__Starting Voting for \"" + str(inst_name) + "\"__**" + ("\n" + message if len(message) > 0 else "") + "\n" + table + "\n-------------------------")
+        ownMessage = await ctx.send("**__Starting Voting for \"" + str(inst_name) + "\"__**" + ("\n" + message if len(message) > 0 else "") + "\n\n" + table + "-------------------------")
 
         # Adds reactions to own message
         for i in range(0,letter_iter):

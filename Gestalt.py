@@ -17,7 +17,7 @@ with open(DAC_FILE, "r") as discordAuthfile:
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = GAJ_FILE
 
 # Creates basic bot object
-help_overwrite = commands.DefaultHelpCommand(no_category="Commands")
+help_overwrite = commands.DefaultHelpCommand(no_category="Help")
 bot = commands.Bot(command_prefix=COM_PRFX, description="Gestalt's Help Menu", help_command=help_overwrite)
 
 
