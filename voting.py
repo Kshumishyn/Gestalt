@@ -28,7 +28,7 @@ class Voting(commands.Cog):
 
         # Adds the instance of nomination
         nominationMap[unique_inst] = {}
-        await ctx.send("**__Starting Nominations__**\nUse \"" + str(inst_name) + "\" as the code to access this poll. Example:\n`~nom_add " + str(inst_name) + " Who Killed Captain Alex`")
+        await ctx.send("**__Starting Nominations__**\nUse \"" + str(inst_name) + "\" as the code to access this poll.\nExample:\n`~nom_add " + str(inst_name) + " Who Killed Captain Alex`")
 
         # Removes request message for cleanliness
         await ctx.message.delete()
@@ -54,6 +54,18 @@ class Voting(commands.Cog):
         # Removes nomination instance
         del nominationMap[unique_inst]
         await ctx.send("Cancelled Nominations instance for " + str(inst_name) + ".")
+
+        # Removes request message for cleanliness
+        await ctx.message.delete()
+
+
+    # Gives generation instructions on how to add a nomination
+    @commands.command()
+    async def nom_help(self, ctx):
+        """Describes arbitrarily how to nominate something.
+        """
+
+        await ctx.send("**__How to nominate__**\nUse a poll code with \"nom_add\" or \"nom_remove\" to add or remove a nomination. Using \"nom_add\" multiple times overwrites previous entries.\nExample:\n`~nom_add [POLL_CODE] Who Killed Captain Alex`")
 
         # Removes request message for cleanliness
         await ctx.message.delete()
