@@ -146,7 +146,7 @@ class Voting(commands.Cog):
             return
 
         # Creates list of current nominations
-        await ctx.send("**__Nominations for \"" + str(inst_name) + "\":__**\n(This will self-delete in " + str(6*NOM_TOUT) + " seconds)\n\n" + "\n".join(str(nominationMap[unique_inst][key]) for key in sorted(nominationMap[unique_inst])), delete_after=(6*NOM_TOUT))
+        await ctx.send("**__Nominations for \"" + str(inst_name) + "\":__**\n(This message will not self-delete)\n\n" + "\n".join(str(nominationMap[unique_inst][key]) for key in sorted(nominationMap[unique_inst])))
 
         # Removes request message for cleanliness
         await ctx.message.delete()
