@@ -159,7 +159,7 @@ class Voting(commands.Cog):
 
         inst_name\t- The desired name of nomination instance whose nominations to create votes for.
         max_votes\t- The number of votes available to each person.
-        message\t- An optional message to attach with the start of voting.
+        message\t\t- An optional message to attach with the start of voting.
         """
 
         # Creates a tuple unique to the server
@@ -179,6 +179,12 @@ class Voting(commands.Cog):
             await ctx.send("Nomination Instance: " + str(inst_name) + " is empty, try again.")
             return
 
+        # Does error checking on number
+        if not isnumber(max_votes):
+            await ctx.send("Malformed: Quantity provided is not a number (NaN).")
+            return
+        max_votes = int(float(max_votes))
+
         # Checks if number of votes is a valid number, notably greater than 0
         if max_votes < 1:
             await ctx.send("Nomination Instance: " + str(inst_name) + " cannot allow a max of \"" + str(max_votes) + "\" votes.")
@@ -189,10 +195,10 @@ class Voting(commands.Cog):
         voteAsciiMap = {}
         letter_iter = 0
         for key in sorted(nominationMap[unique_inst]):
-            emote = ":" + "regional_indicator_" + ascii_lowercase[letter_iter] + ":"
-            table = table + emote + " : " + str(nominationMap[unique_inst][key]) + "\n"
+            letter = ascii_lowercase[letter_iter]
+            table = table + ":regional_indicator_" + letter + ": : " + str(nominationMap[unique_inst][key]) + "\n"
             letter_iter = letter_iter + 1
-            voteAsciiMap[regional_indicators[emote]] = nominationMap[unique_inst][key]
+            voteAsciiMap[regional_indicators[letter]] = nominationMap[unique_inst][key]
             
         # Sends formatted voting table
         ownMessage = await ctx.send("**__Starting Voting for \"" + str(inst_name) + "\"__**" + ("\n" + message if len(message) > 0 else "") + "\n\n" + table + "-------------------------")

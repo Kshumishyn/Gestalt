@@ -9,29 +9,24 @@ class Events(commands.Cog):
         self.bot = bot
 
 
-    # Identifies listener as ready
-    async def on_ready(self):
-        print("Listener is ready")
-
-
     # Handles unrecognized commands
     @commands.Cog.listener()
-    async def on_command_error(self, ctx, error):
+    async def on_command_error(self, payload, error):
         """Handles broad scope errors.
 
         error\t- The specific error type.
         """
 
         if isinstance(error, commands.CommandNotFound):
-            await ctx.send("Malformed: Command not found, seek ~help.")
+            await payload.send("Malformed: Command not found, seek ~help.")
         elif isinstance(error, commands.MemberNotFound):
-            await ctx.send("Malformed: Sought member was not found in active server.")
+            await payload.send("Malformed: Sought member was not found in active server.")
         elif isinstance(error, commands.MissingPermissions):
-            await ctx.send("Malformed: Missing permissions to perform deletion.")
+            await payload.send("Malformed: Missing permissions to perform deletion.")
         elif isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send("Malformed: Command is missing arguments, type \"~help [command]\" to see syntax.")
+            await payload.send("Malformed: Command is missing arguments, type \"~help [command]\" to see syntax.")
         else:
-            await ctx.send("Malformed: Unhandled Error. Writing to file.")
+            await payload.send("Malformed: Unhandled Error. Writing to file.")
             with open(ERR_FILE, "a+") as error_file:
                 error_file.write(str(datetime.datetime.now()) + ":\n" + str(error) + "\n\n")
             raise error
@@ -39,16 +34,26 @@ class Events(commands.Cog):
 
     # Handles unrecognized commands
     @commands.Cog.listener()
-    async def on_raw_reaction_add(self, ctx):
+    async def on_raw_reaction_add(self, payload):
         """Attempts to listen for reactions specifically to voting instances.
         """
 
-        if ctx.message_id == 590509269603057686:
-            channel = ctx.get_channel(ctx.channel_id)
-            message = await channel.fetch_message(ctx.message_id)
-            user = ctx.get_user(ctx.user_id)
-            emoji = ctx.get_emoji(577578847080546304)
-            await message.remove_reaction(emoji, user)
+        # Only handle non-self generated reactions from voting list        
+        if not payload.user_id == self.bot.user.id:
+            if payload.message_id in votingMap:
+                print("Special message!!")
+                user = payload.get_user(payload.user_id)
+                emoji = payload.get_emoji(577578847080546304)
+                await message.remove_reaction(emoji, user)
+                '''channel = payload.get_channel(payload.channel_id)
+                message = await channel.fetch_message(payload.message_id)
+                user = payload.get_user(payload.user_id)
+                emoji = payload.get_emoji(577578847080546304)
+                await message.remove_reaction(emoji, user)'''
+            else:
+                print("Boring message..")
+        else:
+            print("Bot message..")
 
 
 # Necessary for Cog Setup
