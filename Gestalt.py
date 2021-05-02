@@ -1,10 +1,8 @@
-import datetime
+from events import Events
 from macros import Macros
 from voting import Voting
+from miscellenous import Miscellenous
 from persistent import *
-from voting import *
-from macros import *
-from miscellenous import *
 
 
 # Fetches configuration information
@@ -42,32 +40,10 @@ async def on_ready():
     random_presence.start()
 
 
-# Handles unrecognized commands
-@bot.event
-async def on_command_error(ctx, error):
-    """Handles broad scope errors.
-
-    error\t- The specific error type.
-    """
-
-    if isinstance(error, commands.CommandNotFound):
-        await ctx.send("Malformed: Command not found, seek ~help.")
-    elif isinstance(error, commands.MemberNotFound):
-        await ctx.send("Malformed: Sought member was not found in active server.")
-    elif isinstance(error, commands.MissingPermissions):
-        await ctx.send("Malformed: Missing permissions to perform deletion.")
-    elif isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send("Malformed: Command is missing arguments, type \"~help [command]\" to see syntax.")
-    else:
-        await ctx.send("Malformed: Unhandled Error. Writing to file.")
-        with open(ERR_FILE, "a+") as error_file:
-            error_file.write(str(datetime.datetime.now()) + ":\n" + str(error) + "\n\n")
-        raise error
-
-
 # Adds Cogs to Bot
-bot.add_cog(Voting(bot))
+bot.add_cog(Events(bot))
 bot.add_cog(Macros(bot))
+bot.add_cog(Voting(bot))
 bot.add_cog(Miscellenous(bot))
 
 # Runs Bot

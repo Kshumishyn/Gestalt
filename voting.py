@@ -154,19 +154,20 @@ class Voting(commands.Cog):
 
     # Transfers Nomination Instance into a Voting Instance
     @commands.command()
-    async def begin_voting(self, ctx, inst_name, *message):
+    async def begin_voting(self, ctx, inst_name, max_votes, *message):
         """Attempts to start a voting instance using the already built nomination instance.
 
         inst_name\t- The desired name of nomination instance whose nominations to create votes for.
+        max_votes\t- The number of votes available to each person.
         message\t- An optional message to attach with the start of voting.
         """
-
-        # Processes
-        message = " ".join(message)
 
         # Creates a tuple unique to the server
         guildID = ctx.message.guild.id
         unique_inst = (guildID, inst_name.lower())
+
+        # Processes
+        message = " ".join(message)
 
         # Checks if nomination instance exists on this server
         if unique_inst not in nominationMap:
@@ -178,13 +179,21 @@ class Voting(commands.Cog):
             await ctx.send("Nomination Instance: " + str(inst_name) + " is empty, try again.")
             return
 
+        # Checks if number of votes is a valid number, notably greater than 0
+        if max_votes < 1:
+            await ctx.send("Nomination Instance: " + str(inst_name) + " cannot allow a max of \"" + str(max_votes) + "\" votes.")
+            return
+
         # Prepares Table
         table = ""
+        voteAsciiMap = {}
         letter_iter = 0
         for key in sorted(nominationMap[unique_inst]):
-            table = table + ":" + "regional_indicator_" + ascii_lowercase[letter_iter] + ": : " + str(nominationMap[unique_inst][key]) + "\n"
+            emote = ":" + "regional_indicator_" + ascii_lowercase[letter_iter] + ":"
+            table = table + emote + " : " + str(nominationMap[unique_inst][key]) + "\n"
             letter_iter = letter_iter + 1
-
+            voteAsciiMap[regional_indicators[emote]] = nominationMap[unique_inst][key]
+            
         # Sends formatted voting table
         ownMessage = await ctx.send("**__Starting Voting for \"" + str(inst_name) + "\"__**" + ("\n" + message if len(message) > 0 else "") + "\n\n" + table + "-------------------------")
 
@@ -193,11 +202,26 @@ class Voting(commands.Cog):
             emote = regional_indicators[ascii_lowercase[i]]
             await ownMessage.add_reaction(emote)
 
+        # Prepares Map for reaction reading
+        votingMap[ownMessage.id] = (voteAsciiMap, max_votes, {ctx.author.id : (0, [])})
+
         # Clears nomination from list
         nominationMap.pop(unique_inst, None)
 
         # Removes request message for cleanliness
         await ctx.message.delete()
+
+
+    # Tallies the total votes and prints a result
+    @commands.command()
+    async def end_voting(self, ctx, inst_name):
+        """Attempts to start a voting instance using the already built nomination instance.
+
+        inst_name\t- The desired name of nomination instance whose nominations to create votes for.
+        """
+
+        # Creates a tuple unique to the server
+
 
 
 # Necessary for Cog Setup

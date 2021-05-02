@@ -91,6 +91,9 @@ presenceList = [
 # Nomination instance - Format: {(guildID, instance_name): {userID : nomination}}
 nominationMap = {}
 
+# Voting instance - Format: {messageID : ({emote : nomination}, max_votes, {userID : (numVotes, [m0...mNV])})}
+votingMap = {}
+
 # Macro Map
 macroMap = {}
 if not os.path.exists(MDJ_FILE):
