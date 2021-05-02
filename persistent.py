@@ -14,7 +14,7 @@ from discord.ext import commands, tasks
 COM_PRFX = "~"
 MAX_PRVW = 18
 MAX_MESG = 160
-NOM_TOUT = 20
+NOM_TOUT = 1800
 VERSION = "23"
 
 # Filenames
