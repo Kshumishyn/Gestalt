@@ -98,8 +98,7 @@ class Voting(commands.Cog):
 
         # Handles cleaning of 'nom_list' displays
         if unique_inst in nomlistMap:
-            channel = self.bot.get_channel(ctx.message.channel_id)
-            messageToDelete = await channel.fetch_message(nomlistMap[unique_inst])
+            messageToDelete = await ctx.fetch_message(nomlistMap[unique_inst])
             await messageToDelete.delete()
         nomlistMap[unique_inst] = ownMessage.id
 
