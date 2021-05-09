@@ -26,7 +26,7 @@ class Miscellenous(commands.Cog):
 
         # Imposes character limit
         if len(message) > MAX_MESG:
-            await ctx.send("Message is longer than " + str(MAX_MESG) + " characters, trimming to " + str(MAX_MESG) + ".")
+            await ctx.send("Message is longer than " + str(MAX_MESG) + " characters, trimming to " + str(MAX_MESG) + ".", delete_after=NOM_TOUT)
             message = message[:MAX_MESG]
 
         # Breaks down by direction and language
@@ -35,11 +35,11 @@ class Miscellenous(commands.Cog):
             if language_code is not None:
                 await ctx.send(str(translate_text(language_code, message)).replace("&#39;", ""))
             else:
-                await ctx.send("Could not find desired language.")
+                await ctx.send("Could not find desired language.", delete_after=NOM_TOUT)
         elif direction == "from":
             await ctx.send(str(translate_text("en", message)).replace("&#39;", ""))
         else:
-            await ctx.send("Could not recognize desired direction, try \"into\",\"to\" or \"from\" instead.")
+            await ctx.send("Could not recognize desired direction, try \"into\",\"to\" or \"from\" instead.", delete_after=NOM_TOUT)
 
 
     # Rolls DnD dice
@@ -58,11 +58,11 @@ class Miscellenous(commands.Cog):
         # Does cumulative error feedback on initial query
         if len(dCapture) < 1 or len(dCapture) > 2 or len(rCapture) > 1:
             if len(dCapture) < 1:
-                await ctx.send("Malformed: Missing primary die of form \"[numDice]d[maxRoll]\".")
+                await ctx.send("Malformed: Missing primary die of form \"[numDice]d[maxRoll]\".", delete_after=NOM_TOUT)
             if len(dCapture) > 2:
-                await ctx.send("Malformed: Discovered more than two potential occurences of primary or drop die.")    
+                await ctx.send("Malformed: Discovered more than two potential occurences of primary or drop die.", delete_after=NOM_TOUT)    
             if len(rCapture) > 1:
-                await ctx.send("Malformed: Discovered more than one potential occurence of reroll die.")
+                await ctx.send("Malformed: Discovered more than one potential occurence of reroll die.", delete_after=NOM_TOUT)
             return
 
         # Captures number of dice to drop
@@ -84,19 +84,19 @@ class Miscellenous(commands.Cog):
         # Does checking on ordering
         if (len(dCapture) > 0 and len(rCapture) > 0 and dFirst > rFirst) or (dLast is not None and len(dCapture) > 1 and len(rCapture) > 0 and dLast < rFirst):
             if len(dCapture) > 0 and len(rCapture) > 0 and dFirst > rFirst:
-                await ctx.send("Malformed: Missing primary die, check die ordering.")
+                await ctx.send("Malformed: Missing primary die, check die ordering.", delete_after=NOM_TOUT)
             if len(dCapture) > 1 and len(rCapture) > 0 and dLast < rFirst:
-                await ctx.send("Malformed: Drop die should not preceed rerolls.")
+                await ctx.send("Malformed: Drop die should not preceed rerolls.", delete_after=NOM_TOUT)
             return
 
         # Does checking on relative values reasonability
         if rerollFloor > maxRoll or numDrop > numDice or min(numDice, maxRoll, rerollFloor, numDrop) < 0:
             if rerollFloor > maxRoll:
-                await ctx.send("Malformed: Minimum desired roll is greater than highest possible.")
+                await ctx.send("Malformed: Minimum desired roll is greater than highest possible.", delete_after=NOM_TOUT)
             if numDrop > numDice:
-                await ctx.send("Malformed: Dropping more lowest die than dice have been rolled.")
+                await ctx.send("Malformed: Dropping more lowest die than dice have been rolled.", delete_after=NOM_TOUT)
             if min(numDice, maxRoll, rerollFloor, numDrop) < 0:
-                await ctx.send("Malformed: Negative values are unacceptable.")
+                await ctx.send("Malformed: Negative values are unacceptable.", delete_after=NOM_TOUT)
             return
 
         # Accumulates rolls
@@ -126,7 +126,7 @@ class Miscellenous(commands.Cog):
 
         # Does error checking on number
         if not isnumber(number):
-            await ctx.send("Malformed: Quantity provided is not a number (NaN).")
+            await ctx.send("Malformed: Quantity provided is not a number (NaN).", delete_after=NOM_TOUT)
             return
         number = int(float(number))
 
@@ -135,7 +135,7 @@ class Miscellenous(commands.Cog):
         if unit in timeMap:
             mult = timeMap[unit]
         else:
-            await ctx.send("Malformed: Nonstandard unit provided. Example: \"mins\" or \"minutes\".")
+            await ctx.send("Malformed: Nonstandard unit provided. Example: \"mins\" or \"minutes\".", delete_after=NOM_TOUT)
             return
 
         # Formats message

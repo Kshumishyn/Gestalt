@@ -4,6 +4,7 @@ import pandas as pd
 import random
 import discord
 from discord.ext import commands, tasks
+from collections import Counter
 
 
 ################################################################################
@@ -15,7 +16,7 @@ COM_PRFX = "~"
 MAX_PRVW = 18
 MAX_MESG = 160
 NOM_TOUT = 1800
-VERSION = "23"
+VERSION = "25"
 
 # Filenames
 ERR_FILE = "error.log"
@@ -94,6 +95,12 @@ nominationMap = {}
 # Voting instance - Format: {messageID : ({emote : nomination}, max_votes, {userID : (numVotes, [m0...mNV])})}
 votingMap = {}
 
+# A simple mapping of voting instances to their messages for lookup
+messageMap = {}
+
+# A list keeping track of listings for nominations
+nomlistMap = {}
+
 # Macro Map
 macroMap = {}
 if not os.path.exists(MDJ_FILE):
@@ -153,10 +160,16 @@ def language_lookup(target):
     return country_code
 
 
-# Simple num checker
+# Simple number checker
 def isnumber(s):
     try:
         float(s)
         return True
     except ValueError:
         return False
+
+
+# Returns the most frequently occuring element in a list
+def most_frequent(test_list):
+    occurence_count = Counter(test_list)
+    return occurence_count.most_common(1)[0][0]

@@ -23,7 +23,7 @@ class Macros(commands.Cog):
 
         # Validates Macro
         if macro in macroMap:
-            await ctx.send("Macro: " + macro + " already in the macro mapping, try again.")
+            await ctx.send("Macro: " + macro + " already in the macro mapping, try again.", delete_after=NOM_TOUT)
             return
 
         # Adds to Macro Map
@@ -61,7 +61,7 @@ class Macros(commands.Cog):
 
         # Validates Macro
         if macro not in macroMap:
-            await ctx.send("Macro: " + macro + " was not in the macro mapping, try again.")
+            await ctx.send("Macro: " + macro + " was not in the macro mapping, try again.", delete_after=NOM_TOUT)
             return
 
         # Uses macro
@@ -84,7 +84,7 @@ class Macros(commands.Cog):
 
         # Validates Macro
         if macro not in macroMap:
-            await ctx.send("Macro: " + macro + " was not in the macro mapping, try again.")
+            await ctx.send("Macro: " + macro + " was not in the macro mapping, try again.", delete_after=NOM_TOUT)
             return
 
         # Removes macro
