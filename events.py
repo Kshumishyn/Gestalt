@@ -38,22 +38,51 @@ class Events(commands.Cog):
         """Attempts to listen for reactions specifically to voting instances.
         """
 
-        # Only handle non-self generated reactions from voting list        
+        # Voting instance - Format: {messageID : ({emote : nomination}, max_votes, {userID : (numVotes, [m0...mNV])})}
+        # Only handle non-self generated reactions from voting list       
         if not payload.user_id == self.bot.user.id:
             if payload.message_id in votingMap:
-                print("Special message!!")
-                user = payload.get_user(payload.user_id)
-                emoji = payload.get_emoji(577578847080546304)
-                await message.remove_reaction(emoji, user)
-                '''channel = payload.get_channel(payload.channel_id)
+
+                # Processes emote
+                emoteMap, maxVotes, userVotes = votingMap[payload.message_id]
+                emote = str(payload.emoji)
+
+                # Processes user
+                user = self.bot.get_user(payload.user_id)
+                
+                # Processes removing reaction
+                channel = self.bot.get_channel(payload.channel_id)
                 message = await channel.fetch_message(payload.message_id)
-                user = payload.get_user(payload.user_id)
-                emoji = payload.get_emoji(577578847080546304)
-                await message.remove_reaction(emoji, user)'''
-            else:
-                print("Boring message..")
-        else:
-            print("Bot message..")
+                await message.remove_reaction(emote, user)
+
+                # Validates if relevant emote
+                if emote not in emoteMap:
+                    return
+
+                # Validates if user exists already
+                userRaw = None
+                if payload.user_id in userVotes:
+                    userRaw = userVotes[payload.user_id]
+                else:
+                    userRaw = (0, [None for i in range(maxVotes + 1)])
+
+                # Fetches movie and user information
+                movie = emoteMap[emote]
+                userNumVotes = userRaw[0]
+                userMovies = userRaw[1]
+
+                # Validates if movie already exists in user's list
+                if movie in userMovies:
+                    return
+
+                # Restructures user's movie choices
+                userMovies[userNumVotes % maxVotes] = movie
+                userNumVotes = userNumVotes + 1
+
+                # Modifies changes into overarching structure
+                userMod = (userNumVotes, userMovies)
+                userVotes[payload.user_id] = userMod
+                votingMap[payload.message_id] = (emoteMap, maxVotes, userVotes)
 
 
 # Necessary for Cog Setup
