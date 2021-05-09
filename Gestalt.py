@@ -16,7 +16,9 @@ os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = GAJ_FILE
 
 # Creates basic bot object
 help_overwrite = commands.DefaultHelpCommand(no_category="Help")
-bot = commands.Bot(command_prefix=COM_PRFX, description="Gestalt's Help Menu", help_command=help_overwrite)
+intents_overwrite = discord.Intents.default()
+intents_overwrite.members = True
+bot = commands.Bot(command_prefix=COM_PRFX, description="Gestalt's Help Menu", help_command=help_overwrite, intents=intents_overwrite)
 
 
 # Creates a task to iterate randomly through creative messages
