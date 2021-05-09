@@ -44,6 +44,8 @@ class Macros(commands.Cog):
         # Fetches macro list
         await ctx.send("Macro List:\n\n" + "\n".join([str(k + ":\n\"" + " ".join(v.split(" ")[:min(len(v), MAX_PRVW)]) + "\"\n") for k,v in macroMap.items()]))
 
+        # TODO: Make it remove previous message instances
+
         # Removes request message for cleanliness
         await ctx.message.delete()
 
