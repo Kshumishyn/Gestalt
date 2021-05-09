@@ -142,7 +142,7 @@ class Miscellenous(commands.Cog):
         message = (" ".join(message)).replace("&#39;", "")
 
         # Gives feedback
-        await ctx.send("Will do " + target.mention + "!")
+        await ctx.send("Reminder set for " + str(target) + "!")
 
         # Removes request message for cleanliness
         await ctx.message.delete()
