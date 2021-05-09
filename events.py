@@ -18,15 +18,15 @@ class Events(commands.Cog):
         """
 
         if isinstance(error, commands.CommandNotFound):
-            await payload.send("Malformed: Command not found, seek ~help.")
+            await payload.send("Malformed: Command not found, seek ~help.", delete_after=NOM_TOUT)
         elif isinstance(error, commands.MemberNotFound):
-            await payload.send("Malformed: Sought member was not found in active server.")
+            await payload.send("Malformed: Sought member was not found in active server.", delete_after=NOM_TOUT)
         elif isinstance(error, commands.MissingPermissions):
-            await payload.send("Malformed: Missing permissions to perform deletion.")
+            await payload.send("Malformed: Missing permissions to perform deletion.", delete_after=NOM_TOUT)
         elif isinstance(error, commands.MissingRequiredArgument):
-            await payload.send("Malformed: Command is missing arguments, type \"~help [command]\" to see syntax.")
+            await payload.send("Malformed: Command is missing arguments, type \"~help [command]\" to see syntax.", delete_after=NOM_TOUT)
         else:
-            await payload.send("Malformed: Unhandled Error. Writing to file.")
+            await payload.send("Malformed: Unhandled Error. Writing to file.", delete_after=NOM_TOUT)
             with open(ERR_FILE, "a+") as error_file:
                 error_file.write(str(datetime.datetime.now()) + ":\n" + str(error) + "\n\n")
             raise error
