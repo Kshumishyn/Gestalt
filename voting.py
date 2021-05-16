@@ -95,6 +95,9 @@ class Voting(commands.Cog):
 
         # Creates list of current nominations
         ownMessage = await ctx.send("**__Nominations for \"" + str(inst_name) + "\":__**\n\n" + "\n".join(str(nominationMap[unique_inst][key]) for key in sorted(nominationMap[unique_inst])))
+        # TODO: Add help command for Abby
+
+        # TODO: Autocapitalize Abby's nominations
 
         # Handles cleaning of 'nom_list' displays
         if unique_inst in nomlistMap:
@@ -129,6 +132,7 @@ class Voting(commands.Cog):
 
         # Creates list of current nominations
         ownMessage = await ctx.send("**__Nominations for \"" + str(inst_name) + "\":__**\n\n" + "\n".join(str(nominationMap[unique_inst][key]) for key in sorted(nominationMap[unique_inst])))
+        # TODO: Add help command for Abby
 
         # Handles cleaning of 'nom_list' displays
         if unique_inst in nomlistMap:
@@ -159,6 +163,7 @@ class Voting(commands.Cog):
 
         # Creates list of current nominations
         ownMessage = await ctx.send("**__Nominations for \"" + str(inst_name) + "\":__**\n\n" + "\n".join(str(nominationMap[unique_inst][key]) for key in sorted(nominationMap[unique_inst])))
+        # TODO: Add help command for Abby
 
         # Handles cleaning of 'nom_list' displays
         if unique_inst in nomlistMap:
@@ -219,7 +224,7 @@ class Voting(commands.Cog):
             voteAsciiMap[regional_indicators[letter]] = nominationMap[unique_inst][key]
             
         # Sends formatted voting table
-        ownMessage = await ctx.send("**__Starting Voting for \"" + str(inst_name) + "\"__**" + ("\n" + message if len(message) > 0 else "") + "\n\nYou may vote as much as you want but only the most recent " + str(max_votes) + " votes will count.\n" + table + "-------------------------")
+        ownMessage = await ctx.send("**__Starting Voting for \"" + str(inst_name) + "\"__**" + ("\n" + message if len(message) > 0 else "") + "\nYou may vote as much as you want but only the most recent " + str(max_votes) + " votes will count.\n\n" + table + "-------------------------")
 
         # Adds reactions to own message
         for i in range(0, letter_iter):

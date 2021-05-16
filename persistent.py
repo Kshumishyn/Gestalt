@@ -12,7 +12,7 @@ from collections import Counter
 ################################################################################
 
 # Global constants
-COM_PRFX = "~"
+COM_PRFX = "/"
 MAX_PRVW = 18
 MAX_MESG = 160
 NOM_TOUT = 1800
