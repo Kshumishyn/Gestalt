@@ -10,7 +10,7 @@ class Voting(commands.Cog):
 
 
     # Creates a Nomination Instance
-    @commands.command()
+    @commands.command(aliases=['beginnoms', 'start_noms', 'begin_nom', 'beginnom', 'startnoms', 'nom_begin', 'nombegin', 'nom_start', 'nomstart'])
     async def begin_noms(self, ctx, inst_name):
         """Attempts to start a nomination instance with a given name.
 
@@ -35,7 +35,7 @@ class Voting(commands.Cog):
 
 
     # Ends a Nomination Instance
-    @commands.command()
+    @commands.command(aliases=['cancelnoms', 'stop_noms', 'stopnoms'])
     async def cancel_noms(self, ctx, inst_name):
         """Attempts to remove a nomination instance with a given name.
 
@@ -60,7 +60,7 @@ class Voting(commands.Cog):
 
 
     # Gives generation instructions on how to add a nomination
-    @commands.command()
+    @commands.command(aliases=['nomhelp'])
     async def nom_help(self, ctx):
         """Describes arbitrarily how to nominate something.
         """
@@ -72,7 +72,7 @@ class Voting(commands.Cog):
 
 
     # Add a nomination
-    @commands.command()
+    @commands.command(aliases=['nomadd', 'add_nom', 'addnom', 'nominate', 'nom'])
     async def nom_add(self, ctx, inst_name, *nom):
         """Attempts to add a nomination to an existing nomination instance. Displays nomination list for 20 seconds after valid input.
 
@@ -94,10 +94,7 @@ class Voting(commands.Cog):
         nominationMap[unique_inst][userID] = " ".join(nom)
 
         # Creates list of current nominations
-        ownMessage = await ctx.send("**__Nominations for \"" + str(inst_name) + "\":__**\n\n" + "\n".join(str(nominationMap[unique_inst][key]) for key in sorted(nominationMap[unique_inst])))
-        # TODO: Add help command for Abby
-
-        # TODO: Autocapitalize Abby's nominations
+        ownMessage = await ctx.send("**__Nominations for \"" + str(inst_name) + "\":__**\n\n" + "\n".join(str(nominationMap[unique_inst][key]) for key in sorted(nominationMap[unique_inst])) + "\n\n\n**__How to nominate__**\nUse a poll code with \"nom_add\" or \"nom_remove\" to add or remove a nomination. Using \"nom_add\" multiple times overwrites previous entries.\nExample:\n`~nom_add " + str(inst_name) + " Who Killed Captain Alex`")
 
         # Handles cleaning of 'nom_list' displays
         if unique_inst in nomlistMap:
@@ -110,7 +107,7 @@ class Voting(commands.Cog):
 
 
     # Removes a nomination
-    @commands.command()
+    @commands.command(aliases=['nomremove', 'remove_nom', 'removenom'])
     async def nom_remove(self, ctx, inst_name):
         """Attempts to remove a nomination from an existing nomination instance. Displays nomination list for 20 seconds after valid input.
 
@@ -131,8 +128,7 @@ class Voting(commands.Cog):
         nominationMap[unique_inst].pop(userID, None)
 
         # Creates list of current nominations
-        ownMessage = await ctx.send("**__Nominations for \"" + str(inst_name) + "\":__**\n\n" + "\n".join(str(nominationMap[unique_inst][key]) for key in sorted(nominationMap[unique_inst])))
-        # TODO: Add help command for Abby
+        ownMessage = await ctx.send("**__Nominations for \"" + str(inst_name) + "\":__**\n\n" + "\n".join(str(nominationMap[unique_inst][key]) for key in sorted(nominationMap[unique_inst])) + "\n\n\n**__How to nominate__**\nUse a poll code with \"nom_add\" or \"nom_remove\" to add or remove a nomination. Using \"nom_add\" multiple times overwrites previous entries.\nExample:\n`~nom_add " + str(inst_name) + " Who Killed Captain Alex`")        # TODO: Add help command for Abby
 
         # Handles cleaning of 'nom_list' displays
         if unique_inst in nomlistMap:
@@ -145,7 +141,7 @@ class Voting(commands.Cog):
 
 
     # Lists all active nominations
-    @commands.command()
+    @commands.command(aliases=['nomlist', 'list_nom', 'listnom'])
     async def nom_list(self, ctx, inst_name):
         """Attempts to list nominations for an existing nomination instance.
 
@@ -162,8 +158,7 @@ class Voting(commands.Cog):
             return
 
         # Creates list of current nominations
-        ownMessage = await ctx.send("**__Nominations for \"" + str(inst_name) + "\":__**\n\n" + "\n".join(str(nominationMap[unique_inst][key]) for key in sorted(nominationMap[unique_inst])))
-        # TODO: Add help command for Abby
+        ownMessage = await ctx.send("**__Nominations for \"" + str(inst_name) + "\":__**\n\n" + "\n".join(str(nominationMap[unique_inst][key]) for key in sorted(nominationMap[unique_inst])) + "\n\n\n**__How to nominate__**\nUse a poll code with \"nom_add\" or \"nom_remove\" to add or remove a nomination. Using \"nom_add\" multiple times overwrites previous entries.\nExample:\n`~nom_add " + str(inst_name) + " Who Killed Captain Alex`")
 
         # Handles cleaning of 'nom_list' displays
         if unique_inst in nomlistMap:
@@ -176,7 +171,7 @@ class Voting(commands.Cog):
 
 
     # Transfers Nomination Instance into a Voting Instance
-    @commands.command()
+    @commands.command(aliases=['beginvoting', 'voting_begin', 'votingbegin'])
     async def begin_voting(self, ctx, inst_name, max_votes, *message):
         """Attempts to start a voting instance using the already built nomination instance.
 
@@ -245,7 +240,7 @@ class Voting(commands.Cog):
 
 
     # Tallies the total votes and prints a result
-    @commands.command()
+    @commands.command(aliases=['endvoting', 'voting_end', 'votingend'])
     async def end_voting(self, ctx, inst_name):
         """Attempts to end a voting instance using the already built nomination instance.
 
@@ -267,6 +262,7 @@ class Voting(commands.Cog):
         for user in userVoteMap:
             movieVoteList += userVoteMap[user][1]
         voteCount = dict(Counter(movieVoteList))
+        voteCount = dict(sorted(voteCount.items(), key=lambda x: x[1], reverse=True))
 
         # Handles cleaning of 'nom_list' displays
         messageToDelete = await ctx.fetch_message(messageMap[inst_name])
@@ -276,6 +272,7 @@ class Voting(commands.Cog):
         nominationMap.pop(unique_inst, None)
         votingMap.pop(messageMap[inst_name], None)
         messageMap.pop(inst_name, None)
+        nomlistMap.pop(unique_inst, None)
             
         # Sends formatted voting table
         table = ""
