@@ -15,8 +15,8 @@ from collections import Counter
 COM_PRFX = "~"
 MAX_PRVW = 18
 MAX_MESG = 160
-NOM_TOUT = 1800
-VERSION = "25"
+NOM_TOUT = 120
+VERSION = "26"
 
 # Filenames
 ERR_FILE = "error.log"
@@ -86,6 +86,14 @@ presenceList = [
     "the buzz.",
     "the knocking.",
     "the abyss.",
+    "the daily.",
+    "the lacking.",
+    "the left behind.",
+    "the river.",
+    "the sea.",
+    "the pillars.",
+    "the brush.",
+    "the crackles.",
     "the end."
 ]
 
