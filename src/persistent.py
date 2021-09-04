@@ -130,6 +130,7 @@ for k,v in countryTmp.items():
 # Function definitions
 ################################################################################
 
+# TODO: Replace with https://pypi.org/project/googletrans/
 # Google's default translation functionpi
 def translate_text(target, text):
     """Translates text into the target language.
