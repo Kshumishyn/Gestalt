@@ -19,11 +19,12 @@ NOM_TOUT = 120
 VERSION = "26"
 
 # Filenames
-ERR_FILE = "error.log"
-DAC_FILE = "discordAuth.code"
-GAJ_FILE = "googleAuthcode.json"
-MDJ_FILE = "macro-dictionary.json"
-LCC_FILE = "language-codes.csv"
+REL_PATH = os.path.split(os.path.dirname(__file__))[0]
+ERR_FILE = REL_PATH + "/logs/error.log"
+DAC_FILE = REL_PATH + "/data/discordAuth.code"
+GAJ_FILE = REL_PATH + "/data/googleAuthcode.json"
+MDJ_FILE = REL_PATH + "/data/macro-dictionary.json"
+LCC_FILE = REL_PATH + "/data/language-codes.csv"
 
 # Time map
 timeMap = {
@@ -129,7 +130,7 @@ for k,v in countryTmp.items():
 # Function definitions
 ################################################################################
 
-# Google's default translation function
+# Google's default translation functionpi
 def translate_text(target, text):
     """Translates text into the target language.
 
