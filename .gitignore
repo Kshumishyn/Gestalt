@@ -136,3 +136,5 @@ dmypy.json
 googleAuthcode.json
 error.log
 discordAuth.code
+node_modules/
+package-lock.json
