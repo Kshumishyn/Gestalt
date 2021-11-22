@@ -71,12 +71,15 @@ class Events(commands.Cog):
                 userNumVotes = userRaw[0]
                 userMovies = userRaw[1]
 
-                # Validates if movie already exists in user's list
+                # Validates if movie already exists in user's list and handles
                 if movie in userMovies:
-                    return
+                    userMovies.pop(userMovies.index(movie))
+                    userMovies.append(movie)
+                else:
+                    userMovies.append(userMovies.pop(0))
+                    userMovies[-1] = movie
 
-                # Restructures user's movie choices
-                userMovies[userNumVotes % maxVotes] = movie
+                # Keeps track of number of user votes for no reason
                 userNumVotes = userNumVotes + 1
 
                 # Modifies changes into overarching structure
