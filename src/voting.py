@@ -227,7 +227,7 @@ class Voting(commands.Cog):
             await ownMessage.add_reaction(emote)
 
         # Prepares Map for reaction reading
-        votingMap[ownMessage.id] = (voteAsciiMap, max_votes, {ctx.author.id : (0, [None for i in range(max_votes)])})
+        votingMap[ownMessage.id] = (voteAsciiMap, max_votes, {ctx.author.id : (0, [None for i in range(max_votes)])}) #TODO: Could maybe make [None]*max_votes
         messageMap[inst_name] = ownMessage.id
 
         # Handles cleaning of 'nom_list' displays
