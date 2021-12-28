@@ -133,6 +133,7 @@ dmypy.json
 .vscode
 
 # Project specific
+macro-dictionary.json
 googleAuthcode.json
 error.log
 discordAuth.code

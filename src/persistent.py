@@ -16,7 +16,8 @@ COM_PRFX = "~"
 MAX_PRVW = 18
 MAX_MESG = 160
 NOM_TOUT = 120
-VERSION = "27"
+ERR_TOUT = 20
+VERSION = "30"
 
 # Filenames
 REL_PATH = os.path.split(os.path.dirname(__file__))[0]
