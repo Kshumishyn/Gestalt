@@ -73,7 +73,7 @@ class Voting(commands.Cog):
 
     # Add a nomination
     @commands.command(aliases=['nomadd', 'add_nom', 'addnom', 'nominate', 'nom'])
-    async def nom_add(self, ctx, inst_name, *nom):
+    async def nom_add(self, ctx, inst_name, *, nom=None):
         """Attempts to add a nomination to an existing nomination instance. Displays nomination list for 20 seconds after valid input.
 
         inst_name\t- The desired name of nomination instance to add to.
@@ -89,9 +89,18 @@ class Voting(commands.Cog):
             await ctx.send("Nomination Instance: \"" + str(inst_name) + "\" does not exist, try again.", delete_after=NOM_TOUT)
             return
 
+        # Checks if nomination is None and gives feedback
+        if not nom:
+            await ctx.send("Nomination entry missing.", delete_after=NOM_TOUT)
+            return
+
+        # Replaces loose apostrophes to uncommon one
+        nom = nom.replace("'", "’")
+        nom = nom.replace("`", "’")
+
         # Adds nomination to the instance
         userID = ctx.author.id
-        nominationMap[unique_inst][userID] = " ".join(nom)
+        nominationMap[unique_inst][userID] = nom
 
         # Creates list of current nominations
         ownMessage = await ctx.send("**__Nominations for \"" + str(inst_name) + "\":__**\n\n" + "\n".join(str(nominationMap[unique_inst][key]) for key in sorted(nominationMap[unique_inst])) + "\n\n\n**__How to nominate__**\nUse a poll code with \"nom_add\" or \"nom_remove\" to add or remove a nomination. Using \"nom_add\" multiple times overwrites previous entries.\nExample:\n`~nom_add " + str(inst_name) + " Who Killed Captain Alex`")
@@ -128,7 +137,7 @@ class Voting(commands.Cog):
         nominationMap[unique_inst].pop(userID, None)
 
         # Creates list of current nominations
-        ownMessage = await ctx.send("**__Nominations for \"" + str(inst_name) + "\":__**\n\n" + "\n".join(str(nominationMap[unique_inst][key]) for key in sorted(nominationMap[unique_inst])) + "\n\n\n**__How to nominate__**\nUse a poll code with \"nom_add\" or \"nom_remove\" to add or remove a nomination. Using \"nom_add\" multiple times overwrites previous entries.\nExample:\n`~nom_add " + str(inst_name) + " Who Killed Captain Alex`")        # TODO: Add help command for Abby
+        ownMessage = await ctx.send("**__Nominations for \"" + str(inst_name) + "\":__**\n\n" + "\n".join(str(nominationMap[unique_inst][key]) for key in sorted(nominationMap[unique_inst])) + "\n\n\n**__How to nominate__**\nUse a poll code with \"nom_add\" or \"nom_remove\" to add or remove a nomination. Using \"nom_add\" multiple times overwrites previous entries.\nExample:\n`~nom_add " + str(inst_name) + " Who Killed Captain Alex`")
 
         # Handles cleaning of 'nom_list' displays
         if unique_inst in nomlistMap:
@@ -172,7 +181,7 @@ class Voting(commands.Cog):
 
     # Transfers Nomination Instance into a Voting Instance
     @commands.command(aliases=['beginvoting', 'voting_begin', 'votingbegin'])
-    async def begin_voting(self, ctx, inst_name, max_votes, *message):
+    async def begin_voting(self, ctx, inst_name, max_votes, *, message=None):
         """Attempts to start a voting instance using the already built nomination instance.
 
         inst_name\t- The desired name of nomination instance whose nominations to create votes for.
@@ -184,8 +193,11 @@ class Voting(commands.Cog):
         guildID = ctx.message.guild.id
         unique_inst = (guildID, inst_name.lower())
 
-        # Processes
-        message = " ".join(message)
+        # Replaces loose apostrophes to uncommon one if message exists
+        if message:
+            message = message.replace("'", "’")
+            message = message.replace("`", "’")
+            
 
         # Checks if nomination instance exists on this server
         if unique_inst not in nominationMap:
@@ -219,7 +231,7 @@ class Voting(commands.Cog):
             voteAsciiMap[regional_indicators[letter]] = nominationMap[unique_inst][key]
             
         # Sends formatted voting table
-        ownMessage = await ctx.send("**__Starting Voting for \"" + str(inst_name) + "\"__**" + ("\n" + message if len(message) > 0 else "") + "\nYou may vote as much as you want but only the most recent " + str(max_votes) + " votes will count.\n\n" + table + "-------------------------")
+        ownMessage = await ctx.send("**__Starting Voting for \"" + str(inst_name) + "\"__**" + ("\n" + message if message else "") + "\nYou may vote as much as you want but only the most recent " + str(max_votes) + " votes will count.\n\n" + table + "-------------------------")
 
         # Adds reactions to own message
         for i in range(0, letter_iter):
@@ -227,7 +239,7 @@ class Voting(commands.Cog):
             await ownMessage.add_reaction(emote)
 
         # Prepares Map for reaction reading
-        votingMap[ownMessage.id] = (voteAsciiMap, max_votes, {ctx.author.id : (0, [None for i in range(max_votes)])}) #TODO: Could maybe make [None]*max_votes
+        votingMap[ownMessage.id] = (voteAsciiMap, max_votes, {ctx.author.id : (0, [None for i in range(max_votes)])})
         messageMap[inst_name] = ownMessage.id
 
         # Handles cleaning of 'nom_list' displays

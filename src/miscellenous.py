@@ -12,7 +12,7 @@ class Miscellenous(commands.Cog):
 
     # Translate command with directional and language input
     @commands.command()
-    async def translate(self, ctx, direction, destination, *message):
+    async def translate(self, ctx, direction, destination, *, message=None):
         """Translates from detected language to English, or from detected language to any other. Characters beyond limit are trimmed. Follows general format \"~translate [direction] [destination] [message]\"
 
         direction\t- Describes either "to", "into" or "from" as the direction of translation.
@@ -20,14 +20,19 @@ class Miscellenous(commands.Cog):
         message\t- Describes the message to translate.
         """
 
-        # Tokenizes entry
+        # Replaces loose apostrophes to uncommon one if message exists
         direction = direction.lower()
-        message = " ".join(message).replace("&#39;", "")
+        if message:
+            message = message.replace("'", "’")
+            message = message.replace("`", "’")
 
         # Imposes character limit
         if len(message) > MAX_MESG:
-            await ctx.send("Message is longer than " + str(MAX_MESG) + " characters, trimming to " + str(MAX_MESG) + ".", delete_after=NOM_TOUT)
+            await ctx.send("Message is longer than " + str(MAX_MESG) + " characters, trimming to " + str(MAX_MESG) + ".", delete_after=ERR_TOUT)
             message = message[:MAX_MESG]
+
+        # Gives user feedback
+        await ctx.send("Translating message:\n" + message + "\n")
 
         # Breaks down by direction and language
         if direction == "into" or direction == "to":
@@ -35,11 +40,14 @@ class Miscellenous(commands.Cog):
             if language_code is not None:
                 await ctx.send(str(translate_text(language_code, message)).replace("&#39;", ""))
             else:
-                await ctx.send("Could not find desired language.", delete_after=NOM_TOUT)
+                await ctx.send("Could not find desired language.", delete_after=ERR_TOUT)
         elif direction == "from":
             await ctx.send(str(translate_text("en", message)).replace("&#39;", ""))
         else:
-            await ctx.send("Could not recognize desired direction, try \"into\",\"to\" or \"from\" instead.", delete_after=NOM_TOUT)
+            await ctx.send("Could not recognize desired direction, try \"into\",\"to\" or \"from\" instead.", delete_after=ERR_TOUT)
+        
+        # Removes request message for cleanliness
+        await ctx.message.delete()
 
 
     # Rolls DnD dice
@@ -58,11 +66,11 @@ class Miscellenous(commands.Cog):
         # Does cumulative error feedback on initial query
         if len(dCapture) < 1 or len(dCapture) > 2 or len(rCapture) > 1:
             if len(dCapture) < 1:
-                await ctx.send("Malformed: Missing primary die of form \"[numDice]d[maxRoll]\".", delete_after=NOM_TOUT)
+                await ctx.send("Malformed: Missing primary die of form \"[numDice]d[maxRoll]\".", delete_after=ERR_TOUT)
             if len(dCapture) > 2:
-                await ctx.send("Malformed: Discovered more than two potential occurences of primary or drop die.", delete_after=NOM_TOUT)    
+                await ctx.send("Malformed: Discovered more than two potential occurences of primary or drop die.", delete_after=ERR_TOUT)    
             if len(rCapture) > 1:
-                await ctx.send("Malformed: Discovered more than one potential occurence of reroll die.", delete_after=NOM_TOUT)
+                await ctx.send("Malformed: Discovered more than one potential occurence of reroll die.", delete_after=ERR_TOUT)
             return
 
         # Captures number of dice to drop
@@ -84,19 +92,19 @@ class Miscellenous(commands.Cog):
         # Does checking on ordering
         if (len(dCapture) > 0 and len(rCapture) > 0 and dFirst > rFirst) or (dLast is not None and len(dCapture) > 1 and len(rCapture) > 0 and dLast < rFirst):
             if len(dCapture) > 0 and len(rCapture) > 0 and dFirst > rFirst:
-                await ctx.send("Malformed: Missing primary die, check die ordering.", delete_after=NOM_TOUT)
+                await ctx.send("Malformed: Missing primary die, check die ordering.", delete_after=ERR_TOUT)
             if len(dCapture) > 1 and len(rCapture) > 0 and dLast < rFirst:
-                await ctx.send("Malformed: Drop die should not preceed rerolls.", delete_after=NOM_TOUT)
+                await ctx.send("Malformed: Drop die should not preceed rerolls.", delete_after=ERR_TOUT)
             return
 
         # Does checking on relative values reasonability
         if rerollFloor > maxRoll or numDrop > numDice or min(numDice, maxRoll, rerollFloor, numDrop) < 0:
             if rerollFloor > maxRoll:
-                await ctx.send("Malformed: Minimum desired roll is greater than highest possible.", delete_after=NOM_TOUT)
+                await ctx.send("Malformed: Minimum desired roll is greater than highest possible.", delete_after=ERR_TOUT)
             if numDrop > numDice:
-                await ctx.send("Malformed: Dropping more lowest die than dice have been rolled.", delete_after=NOM_TOUT)
+                await ctx.send("Malformed: Dropping more lowest die than dice have been rolled.", delete_after=ERR_TOUT)
             if min(numDice, maxRoll, rerollFloor, numDrop) < 0:
-                await ctx.send("Malformed: Negative values are unacceptable.", delete_after=NOM_TOUT)
+                await ctx.send("Malformed: Negative values are unacceptable.", delete_after=ERR_TOUT)
             return
 
         # Accumulates rolls
@@ -115,7 +123,7 @@ class Miscellenous(commands.Cog):
 
     # Remind a specific user with a message
     @commands.command()
-    async def remind(self, ctx, target: discord.Member, number, unit, *message):
+    async def remind(self, ctx, target: discord.Member, number, unit, *, message=None):
         """Creates an Asynchronous Reminder with general format \"~remind [target] [number] [unit] [message]\"
 
         target\t- Describes the person to remind.
@@ -126,7 +134,7 @@ class Miscellenous(commands.Cog):
 
         # Does error checking on number
         if not isnumber(number):
-            await ctx.send("Malformed: Quantity provided is not a number (NaN).", delete_after=NOM_TOUT)
+            await ctx.send("Malformed: Quantity provided is not a number (NaN).", delete_after=ERR_TOUT)
             return
         number = int(float(number))
 
@@ -135,11 +143,13 @@ class Miscellenous(commands.Cog):
         if unit in timeMap:
             mult = timeMap[unit]
         else:
-            await ctx.send("Malformed: Nonstandard unit provided. Example: \"mins\" or \"minutes\".", delete_after=NOM_TOUT)
+            await ctx.send("Malformed: Nonstandard unit provided. Example: \"mins\" or \"minutes\".", delete_after=ERR_TOUT)
             return
 
-        # Formats message
-        message = (" ".join(message)).replace("&#39;", "")
+        # Replaces loose apostrophes to uncommon one if message exists
+        if message:
+            message = message.replace("'", "’")
+            message = message.replace("`", "’")
 
         # Gives feedback
         await ctx.send("Reminder set for " + str(target) + "!")

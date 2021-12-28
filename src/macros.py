@@ -10,20 +10,27 @@ class Macros(commands.Cog):
 
     # Creates a Macro
     @commands.command()
-    async def macro_set(self, ctx, macro, *message):
+    async def macro_set(self, ctx, macro, *, message=None):
         """Attempts to create a Macro mapping to a message.
 
         macro\t- Describes the desired macro to create.
         message\t- Describes the message to map to.
         """
 
-        # Processes
+        # Checks if Macro Message is None and gives feedback
+        if not message:
+            await ctx.send("Macro message is missing.", delete_after=ERR_TOUT)
+            return
+
+        # Cleans up message
         macro = str(macro)
-        message = " ".join(message).replace("\\n", "\n")
+        message = message.replace("\\n", "\n")
+        message = message.replace("'", "’")
+        message = message.replace("`", "’")
 
         # Validates Macro
         if macro in macroMap:
-            await ctx.send("Macro: " + macro + " already in the macro mapping, try again.", delete_after=NOM_TOUT)
+            await ctx.send("Macro: " + macro + " already in the macro mapping, try again.", delete_after=ERR_TOUT)
             return
 
         # Adds to Macro Map
@@ -63,7 +70,7 @@ class Macros(commands.Cog):
 
         # Validates Macro
         if macro not in macroMap:
-            await ctx.send("Macro: " + macro + " was not in the macro mapping, try again.", delete_after=NOM_TOUT)
+            await ctx.send("Macro: " + macro + " was not in the macro mapping, try again.", delete_after=ERR_TOUT)
             return
 
         # Uses macro
@@ -86,7 +93,7 @@ class Macros(commands.Cog):
 
         # Validates Macro
         if macro not in macroMap:
-            await ctx.send("Macro: " + macro + " was not in the macro mapping, try again.", delete_after=NOM_TOUT)
+            await ctx.send("Macro: " + macro + " was not in the macro mapping, try again.", delete_after=ERR_TOUT)
             return
 
         # Removes macro
