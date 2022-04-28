@@ -30,6 +30,9 @@ class Voting(commands.Cog):
         nominationMap[unique_inst] = {}
         await ctx.send("**__Starting Nominations__**\nUse \"" + str(inst_name) + "\" as the code to access this poll.\nExample:\n`~nom_add " + str(inst_name) + " Who Killed Captain Alex`")
 
+        # Pickles nomination map
+        repickles(NBP_FILE, nominationMap)
+
         # Removes request message for cleanliness
         await ctx.message.delete()
 
@@ -54,6 +57,9 @@ class Voting(commands.Cog):
         # Removes nomination instance
         del nominationMap[unique_inst]
         await ctx.send("Cancelled Nominations instance for " + str(inst_name) + ".")
+
+        # Pickles nomination map
+        repickles(NBP_FILE, nominationMap)
 
         # Removes request message for cleanliness
         await ctx.message.delete()
@@ -111,6 +117,9 @@ class Voting(commands.Cog):
             await messageToDelete.delete()
         nomlistMap[unique_inst] = ownMessage.id
 
+        # Pickles nomination map
+        repickles(NBP_FILE, nominationMap)
+
         # Removes request message for anonymity
         await ctx.message.delete()
 
@@ -144,6 +153,9 @@ class Voting(commands.Cog):
             messageToDelete = await ctx.fetch_message(nomlistMap[unique_inst])
             await messageToDelete.delete()
         nomlistMap[unique_inst] = ownMessage.id
+
+        # Pickles nomination map
+        repickles(NBP_FILE, nominationMap)
 
         # Removes request message for anonymity
         await ctx.message.delete()
@@ -294,6 +306,9 @@ class Voting(commands.Cog):
         if table == "":
             table = "No votes were cast\n"
         await ctx.send("**__Voting Results for \"" + str(inst_name) + "\":__**\n\n```" + table + "```")
+
+        # Pickles nomination map
+        repickles(NBP_FILE, nominationMap)
 
         # Removes request message for cleanliness
         await ctx.message.delete()

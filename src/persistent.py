@@ -1,6 +1,7 @@
 import os
 import json
 import pandas as pd
+import pickle
 import random
 import discord
 from discord.ext import commands, tasks
@@ -25,6 +26,7 @@ ERR_FILE = REL_PATH + "/logs/error.log"
 DAC_FILE = REL_PATH + "/data/discordAuth.code"
 GAJ_FILE = REL_PATH + "/data/googleAuthcode.json"
 MDJ_FILE = REL_PATH + "/data/macro-dictionary.json"
+NBP_FILE = REL_PATH + "/data/nominationBackup.pickle"
 LCC_FILE = REL_PATH + "/data/language-codes.csv"
 
 # Time map
@@ -100,7 +102,12 @@ presenceList = [
 ]
 
 # Nomination instance - Format: {(guildID, instance_name): {userID : nomination}}
-nominationMap = {}
+if os.path.exists(NBP_FILE):
+    pickle_file = open(NBP_FILE, "rb")
+    nominationMap = pickle.load(pickle_file)
+    pickle_file.close()
+else:
+    nominationMap = {}
 
 # Voting instance - Format: {messageID : ({emote : nomination}, max_votes, {userID : (numVotes, [m0...mNV])})}
 votingMap = {}
@@ -184,3 +191,10 @@ def isnumber(s):
 def most_frequent(test_list):
     occurence_count = Counter(test_list)
     return occurence_count.most_common(1)[0][0]
+
+
+# Updates Pickle
+def repickles(file, data):
+    pickle_file = open(file, "wb")
+    pickle.dump(data, pickle_file)
+    pickle_file.close()
