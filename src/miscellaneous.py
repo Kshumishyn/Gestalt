@@ -2,7 +2,7 @@ import re
 from persistent import *
 
 
-class Miscellenous(commands.Cog):
+class Miscellaneous(commands.Cog):
 
     # Initialization
     def __init__(self, bot):
@@ -176,4 +176,4 @@ class Miscellenous(commands.Cog):
 
 # Necessary for Cog Setup
 def setup(bot):
-    bot.add_cog(Miscellenous(bot))
+    bot.add_cog(Miscellaneous(bot))

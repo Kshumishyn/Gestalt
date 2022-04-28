@@ -1,7 +1,7 @@
 from events import Events
 from macros import Macros
 from voting import Voting
-from miscellenous import Miscellenous
+from miscellaneous import Miscellaneous 
 from persistent import *
 
 
@@ -60,7 +60,7 @@ async def on_ready():
 bot.add_cog(Events(bot))
 bot.add_cog(Macros(bot))
 bot.add_cog(Voting(bot))
-bot.add_cog(Miscellenous(bot))
+bot.add_cog(Miscellaneous(bot))
 
 # Runs Bot
 bot.run(discordAuthcode)
