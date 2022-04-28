@@ -18,6 +18,7 @@ os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = GAJ_FILE
 help_overwrite = commands.DefaultHelpCommand(no_category="Help")
 intents_overwrite = discord.Intents.default()
 intents_overwrite.members = True
+intents_overwrite.messages = True
 bot = commands.Bot(command_prefix=COM_PRFX, description="Gestalt's Help Menu", help_command=help_overwrite, intents=intents_overwrite)
 
 
@@ -30,8 +31,6 @@ async def random_presence():
 # Creates a task to backup active nomination instances
 @tasks.loop(minutes=5)
 async def backup_nominations():
-
-    # Pickles nomination map
     repickles(NBP_FILE, nominationMap)
 
 # DEBUG: Executes on Interval, good for live-testing
