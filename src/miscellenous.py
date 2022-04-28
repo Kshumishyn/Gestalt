@@ -1,4 +1,3 @@
-import asyncio
 import re
 from persistent import *
 
@@ -172,7 +171,7 @@ class Miscellenous(commands.Cog):
         await ctx.message.delete()
 
         # Kills the bot
-        await ctx.bot.logout()
+        await ctx.bot.close()
 
 
 # Necessary for Cog Setup
