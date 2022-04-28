@@ -1,4 +1,6 @@
 import os
+import platform
+import asyncio
 import json
 import pandas as pd
 import pickle
@@ -133,6 +135,9 @@ for k,v in countryTmp.items():
     for country in k.split(";"):
         countryMap[country.strip().lower()] = "".join(v)
 
+# Handles Windows Errors
+if platform.system() == 'Windows':
+	asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 ################################################################################
 # Function definitions
