@@ -135,7 +135,9 @@ dmypy.json
 # Project specific
 macro-dictionary.json
 googleAuthcode.json
+nominationBackup.pickle
 error.log
 discordAuth.code
 node_modules/
 package-lock.json
+.gitignore
