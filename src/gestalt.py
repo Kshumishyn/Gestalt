@@ -27,6 +27,18 @@ async def random_presence():
     choice = presenceList[random.randint(0, len(presenceList)-1)]
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=choice))
 
+# Creates a task to backup active nomination instances
+@tasks.loop(minutes=5)
+async def backup_nominations():
+
+    # Pickles nomination map
+    repickles(NBP_FILE, nominationMap)
+
+# DEBUG: Executes on Interval, good for live-testing
+#@tasks.loop(seconds=3)
+#async def backup_nominations():
+#    print(nominationMap)
+
 
 # Bot Initialization
 @bot.event
@@ -40,6 +52,9 @@ async def on_ready():
 
     # Starts Random Presence
     random_presence.start()
+
+    # Starts backing up nominations list
+    backup_nominations.start()
 
 
 # Adds Cogs to Bot
